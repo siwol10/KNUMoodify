@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Moodify</title>
+  <link rel="stylesheet" th:href="@{/css/result.css}" />
+</head>
+
+<body>
+<div class="page">
+  <header class="header">Moodify</header>
+
+  <!-- ✅ 패널 래퍼 -->
+  <div class="surface">
+    <!-- 좌측: 입력 텍스트 + 다시 입력하기 -->
+    <aside class="side">
+
+      <div class="side-content">
+        <p class="user-text" th:text="${userText}">오늘은 공부하느라 너무 우울해</p>
+        <form th:action="@{/}" method="get">
+          <button class="retry-btn" type="submit">다시 입력하기</button>
+        </form>
+      </div>
+    </aside>
+
+
+    <!-- 우측: 상단 태그 + 3열 카드 그리드 -->
+    <section class="content">
+      <div class="tags">
+        <span class="tag">감정 : <b th:text="${emotion}">sadness</b></span>
+        <span class="tag">상황 : <b th:text="${situation}">party</b></span>
+      </div>
+
+      <div class="music-grid">
+        <div class="music-card" th:each="song : ${songs}">
+          <img th:src="${song.image}" th:alt="${song.title}" />
+          <div class="info">
+            <h3 th:text="${song.title}">제목</h3>
+            <p th:text="${song.artist}">아티스트</p>
+            <button class="play-btn" type="button">▶ 미리듣기</button>
+            <a class="spotify-link" th:href="${song.spotifyUrl}" target="_blank" rel="noopener">
+              Spotify에서 열기
+            </a>
+          </div>
+        </div>
+        <!-- 필요하면 placeholder 카드 추가 가능
+        <div class="music-card placeholder"></div> -->
+      </div>
+    </section>
+  </div>
+
+  <!-- ✅ /surface -->
+</div>
+</body>
+</html>

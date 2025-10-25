@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Moodify</title>
+    <link rel="stylesheet" th:href="@{/css/home.css}" />
+</head>
+<body>
+<header class="header">Moodify</header>
+<main class="wrap">
+    <section class="panel">
+        <h1>오늘의 기분은 어떠신가요?</h1>
+        <form method="post" th:action="@{/analyze}">
+            <div class="input-row">
+                <input id="moodInput" class="pill-input" type="text" name="text"
+                       placeholder="오늘 하루는 어떠셨나요? (예: ‘면접 망해서 속상해..’)" required />
+                <button type="submit" class="submit-btn" aria-label="보내기">
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                        <path d="M4 12h14m-6-6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>
