@@ -1,6 +1,29 @@
 package com.example.moodify.dto;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
 public class SongDTO {
+    private String artist;
+    private String title;
+    private String emotion;
+    private String length;
+    private String isrc;
+    private int party;
+    private int work;
+    private int relaxation;
+    private int exercise;
+    private int running;
+    private int stretching;
+    private int driving;
+    private int gathering;
+    private int morning;
+
+/*
     private String title;
     private String artist;
     private String image;      // 썸네일 URL
@@ -24,4 +47,5 @@ public class SongDTO {
     public void setArtist(String artist) { this.artist = artist; }
     public void setImage(String image) { this.image = image; }
     public void setSpotifyUrl(String spotifyUrl) { this.spotifyUrl = spotifyUrl; }
+*/
 }

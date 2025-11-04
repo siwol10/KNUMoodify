@@ -1,0 +1,14 @@
+#spring.application.name=moodify
+
+server:
+  port:8080
+
+app:
+  ai:
+    base-url: http://localhost:8000
+
+spring:
+  mvc:
+    problemdetails:
+      enabled: true
+

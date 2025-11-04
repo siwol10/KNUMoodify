@@ -1,20 +1,18 @@
 package com.example.moodify.controller;
 
-import com.example.moodify.dto.SongDTO;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
-public class MoodifyController {
+public class ViewController {  //화면 표시용
+
     @GetMapping("/")
     public String home() {
         return "home";
     }
+
+
+    /*   ↓ SongDTO 구조 변경 때문에 오류나서 주석 처리 해놨삼
 
     @PostMapping("/analyze")
     public String analyze(@RequestParam("text") String userText, Model model) {
@@ -138,4 +136,5 @@ public class MoodifyController {
 
         return "result"; // templates/result.html
     }
+    */
 }
