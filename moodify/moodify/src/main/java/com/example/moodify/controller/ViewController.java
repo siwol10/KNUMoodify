@@ -1,14 +1,29 @@
 package com.example.moodify.controller;
 
+import com.example.moodify.service.TestService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @Controller
-public class ViewController {  //화면 표시용
+@Profile("test")  // 웹 화면 테스트용
+@RequiredArgsConstructor
+public class ViewController { //화면 표시용
+    private final TestService testService;
 
     @GetMapping("/")
     public String home() {
         return "home";
+    }
+
+    @GetMapping("/recommendations")
+    public String recommendations(Model model) throws IOException {
+        model.addAttribute("songs", testService.read().getSongs());
+        return "recommendation"; // 추천 결과 화면 템플릿
     }
 
 
