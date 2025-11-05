@@ -166,7 +166,7 @@ cython_debug/
 *.csv
 *.json
 dataset/
-model/
+models/
 wandb/
 logs/
 .DS_Store

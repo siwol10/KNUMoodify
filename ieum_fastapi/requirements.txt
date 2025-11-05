@@ -1,2 +1,12 @@
-pandas~=2.3.3
-fastapi~=0.121.0
+fastapi==0.121.0
+uvicorn==0.38.0
+numpy==2.3.4
+pandas==2.3.3
+torch==2.9.0
+transformers==4.57.1
+accelerate==1.11.0
+safetensors==0.6.2
+sentencepiece==0.2.1
+tqdm==4.67.1
+python-dotenv==1.2.1
+requests==2.32.5
