@@ -8,11 +8,11 @@ from inference import predict_one
 
 @asynccontextmanager
 async def load_dataset(app: FastAPI):
-    global DF_SPOTIFY
-    DF_SPOTIFY = pd.read_json('dataset/spotify_dataset.json', lines=True)
+    global SPOTIFY_DF
+    SPOTIFY_DF = pd.read_json('dataset/spotify_dataset.json', lines=True)
 
     yield
-    DF_SPOTIFY = None
+    SPOTIFY_DF = None
 
 app = FastAPI(lifespan=load_dataset, title="KNU-IEUM", version="1.0.0")
 
@@ -46,5 +46,6 @@ def predict(req: PredictRequest):
 @app.post("/recommendations")
 def analyze_and_recommend(req: PredictRequest):
     emotions = [predict_one(req.text)]
-    songs = recommend(DF_SPOTIFY, emotions, ['party', 'work', 'running'])
+    situations = ['party', 'work', 'running']
+    songs = recommend(SPOTIFY_DF, emotions, situations)
     return {"songs": songs}
