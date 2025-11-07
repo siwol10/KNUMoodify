@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from recommendation import recommend
 from pydantic import BaseModel, Field
 from inference import predict_one
+from situation_classifier import analyze_situation_list
 
 @asynccontextmanager
 async def load_dataset(app: FastAPI):
@@ -46,6 +47,12 @@ def predict(req: PredictRequest):
 @app.post("/recommendations")
 def analyze_and_recommend(req: PredictRequest):
     emotions = [predict_one(req.text)]
-    situations = ['party', 'work', 'running']
+    situations = analyze_situation_list(req.text)
+
+    if not emotions:
+        emotions = ['anger', 'sadness', 'joy', 'surprise', 'fear']
+    if not situations:
+        situations = ['party', 'work', 'relaxation', 'exercise', 'running', 'stretching', 'driving', 'gathering', 'morning']
+
     songs = recommend(SPOTIFY_DF, emotions, situations)
     return {"songs": songs}
