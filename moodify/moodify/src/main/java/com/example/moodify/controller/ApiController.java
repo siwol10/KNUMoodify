@@ -19,7 +19,7 @@ public class ApiController {  //데이터 생성용 (FastAPI 호출)
         return service.getAnalysisResultAndSongs(requestDTO);
     }
 
-    @PostMapping("/recommend") // 선택한 상황에 따라 추천
+    @PostMapping("/recommend") // <목록에 없는 상황이 입력된 경우> 선택한 상황에 따라 추천
     public ResponseDTO getRecommendations(@RequestBody RequestDTO requestDTO) {
         return service.getAnalysisResultAndSongs(requestDTO);
     }

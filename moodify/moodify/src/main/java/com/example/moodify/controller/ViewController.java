@@ -62,7 +62,7 @@ public class ViewController { //화면 표시용
         requestDTO.setText(text);
 
         ResponseDTO response = service.getAnalysisResultAndSongs(requestDTO);
-        if (response.isSelection()) { // 목록에 없는 상황이 입력된 경우 상황 선택 후 다시 추천
+        if (response.isSelection()) { // 목록에 없는 상황이 입력된 경우 -> 상황 선택
             List<String> emotions = response.getEmotions();
             List<String> situations = response.getSituations();
 
@@ -70,8 +70,8 @@ public class ViewController { //화면 표시용
             model.addAttribute("emotions", emotions);
             //model.addAttribute("situations", situations);
 
-            return "home";
-        } else {
+            return "home"; // 상황 선택할 페이지 (상황 선택 후 /recommend로 이동하면 됨)
+        } else {  // 목록에 있는 상황/감정 -> 추천 리스트 보여줌
             List<SongDTO> songs = response.getSongs();
             List<String> emotions = response.getEmotions();
             List<String> situations = response.getSituations();
@@ -96,7 +96,7 @@ public class ViewController { //화면 표시용
 
     }
 
-    @PostMapping("/recommend") // 선택한 상황에 따라 추천
+    @PostMapping("/recommend") // <목록에 없는 상황이 입력된 경우> 선택한 상황에 따라 추천
     public String postRecommendations(
             @RequestParam(value = "text", required = false) String text,
             @RequestParam(value = "emotion", required = false) List<String> emotions, // 감정 선택한 경우

@@ -24,7 +24,7 @@ public class IeumService {
                 .block();
     }
 
-    public ResponseDTO getSongs(RequestDTO requestDTO) { // 선택한 상황에 따라 추천
+    public ResponseDTO getSongs(RequestDTO requestDTO) { // <목록에 없는 상황이 입력된 경우> 선택한 상황에 따라 추천
         return fastApi.post()
                 .uri("/recommend")
                 .accept(MediaType.APPLICATION_JSON)
