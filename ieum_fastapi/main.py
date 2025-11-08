@@ -3,9 +3,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from recommendation import recommend
-from pydantic import BaseModel, Field
 from inference import predict_one
 from situation_classifier import analyze_situation_list
+from schemas import PredictRequest, PredictResponse, WebResponse
+
 
 @asynccontextmanager
 async def load_dataset(app: FastAPI):
@@ -25,12 +26,6 @@ app.add_middleware(
     allow_credentials=True
 )
 
-class PredictRequest(BaseModel):
-    text: str = Field(..., description="분류할 문장")
-
-class PredictResponse(BaseModel):
-    result: str  # 예: emotion="기쁨"
-
 @app.post("/predict", response_model=PredictResponse)
 def predict(req: PredictRequest):
     """
@@ -44,15 +39,33 @@ def predict(req: PredictRequest):
     emotion = predict_one(req.text)
     return {"result": f'emotion="{emotion}"'}
 
-@app.post("/recommendations")
+@app.post("/analyze-and-recommend")
 def analyze_and_recommend(req: PredictRequest):
+    all_emotions = ['anger', 'sadness', 'joy', 'surprise', 'fear']
+    all_situations = ['party', 'work', 'relaxation', 'exercise', 'running', 'stretching', 'driving', 'gathering', 'morning']
+
     emotions = [predict_one(req.text)]
     situations = analyze_situation_list(req.text)
 
-    if not emotions:
-        emotions = ['anger', 'sadness', 'joy', 'surprise', 'fear']
-    if not situations:
-        situations = ['party', 'work', 'relaxation', 'exercise', 'running', 'stretching', 'driving', 'gathering', 'morning']
+    if not emotions: # 상황만 입력했을 경우(특정 감정 입력 X) -> 모든 감정을 가지고 플레이리스트 생성
+        emotions = all_emotions
+    if not situations: # 감정만 입력했을 경우(특정 상황 입력 X) -> 모든 상황을 가지고 플레이리스트 생성
+        situations = all_situations
 
+    print('*** input', req)
+    print('*** emotions', emotions)
+    print('*** situations', situations)
+
+
+    if any(e not in all_emotions for e in emotions) or any(s not in all_situations for s in situations): #목록에 없는 감정/상황이 입력된 경우 선택지 주기
+        return WebResponse(selection = True, emotions = emotions, situations = situations, songs = None)
+    else: # 목록에 있는 감정/상황이 입력된 경우 추천 진행
+        songs = recommend(SPOTIFY_DF, emotions, situations)
+        return WebResponse(selection = False, emotions = emotions, situations = situations, songs = songs)
+
+@app.post("/recommend")
+def recommend_songs(req: PredictRequest):
+    emotions = req.emotions
+    situations = req.situations
     songs = recommend(SPOTIFY_DF, emotions, situations)
-    return {"songs": songs}
+    return WebResponse(selection = False, emotions = emotions, situations = situations, songs = songs)
