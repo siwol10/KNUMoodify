@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
-    <title>Moodify</title>
+    <title>IEUM</title>
     <link rel="stylesheet" th:href="@{/css/home.css}" />
 </head>
 <body>
@@ -10,7 +10,7 @@
 <main class="wrap">
     <section class="panel">
         <h1>오늘의 기분은 어떠신가요?</h1>
-        <form method="post" th:action="@{/analyze}">
+        <form method="post" th:action="@{/recommendations}">
             <div class="input-row">
                 <input id="moodInput" class="pill-input" type="text" name="text"
                        placeholder="오늘 하루는 어떠셨나요? (예: ‘면접 망해서 속상해..’)" required />

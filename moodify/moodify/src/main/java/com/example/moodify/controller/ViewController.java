@@ -23,133 +23,24 @@ public class ViewController { //화면 표시용
     @GetMapping("/recommendations")
     public String recommendations(Model model) throws IOException {
         model.addAttribute("songs", testService.read().getSongs());
-        return "recommendation"; // 추천 결과 화면 템플릿
+        return "result"; // 추천 결과 화면 템플릿
     }
 
+    @PostMapping("/recommendations")
+    public String postRecommendations(@RequestParam("text") String text, Model model) throws IOException {
+        model.addAttribute("songs", testService.read().getSongs());
+        model.addAttribute("inputText",text);
 
-    /*   ↓ SongDTO 구조 변경 때문에 오류나서 주석 처리 해놨삼
-
-    @PostMapping("/analyze")
-    public String analyze(@RequestParam("text") String userText, Model model) {
-        // ▼ TODO: 여기에 실제 감정/상황 분석 로직을 붙이면 됩니다.
-        String emotion   = "sadness";
-        String situation = "party";
-
-        // ▼ 예시 추천곡 (스텁)
-        List<SongDTO> songs = List.of(
-                new SongDTO(
-                        "봄날", "BTS",
-                        "https://i.scdn.co/image/ab67616d0000b273a92e7b99b0f6f1af97d9f1a6",
-                        "https://open.spotify.com/track/2m6Ko3CY1qXNNja8AlugNc"
-                ),
-                new SongDTO(
-                        "Blue & Grey", "BTS",
-                        "https://i.scdn.co/image/ab67616d0000b2738ea26e1531e5a3bfa2a343b2",
-                        "https://open.spotify.com/track/4hDok0OAJd57SGIT8xuWJH"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                ),
-                new SongDTO(
-                        "Someone Like You", "Adele",
-                        "https://i.scdn.co/image/ab67616d0000b273a5c2b3a2ee6f4b4c8bdb0f20",
-                        "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
-                )
-        );
-
-        model.addAttribute("userText", userText);
-        model.addAttribute("emotion", emotion);
-        model.addAttribute("situation", situation);
-        model.addAttribute("songs", songs);
-
-        return "result"; // templates/result.html
+//        model.addAttribute("needsSelection", true);
+//
+//        // 모달에 표시될 감정/상황 후보 (하드코딩)
+//        model.addAttribute("candidateEmotions",
+//                java.util.List.of("joy", "anger", "fear", "sadness", "surprise"));
+//        model.addAttribute("candidateSituations",
+//                java.util.List.of("party", "work", "relaxation", "exercise", "running", "stretching", "driving", "gathering", "morning"));
+//
+//        // 노래 리스트는 비워두기
+//        model.addAttribute("songs", java.util.Collections.emptyList());
+        return "result";
     }
-    */
 }

@@ -2,54 +2,104 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8" />
-  <title>Moodify</title>
+  <title>IEUM</title>
   <link rel="stylesheet" th:href="@{/css/result.css}" />
 </head>
 
 <body>
-<div class="page">
-  <header class="header">IEUM</header>
+<div class="app">
+  <aside class="sidebar">
+    <h1 class="brand">IEUM</h1>
+    <p class="status" th:text="${inputText}"></p>
+    <a class="btn" th:href="@{/}">
+      다시 입력하기
+    </a>
+  </aside>
 
-  <!-- ✅ 패널 래퍼 -->
-  <div class="surface">
-    <!-- 좌측: 입력 텍스트 + 다시 입력하기 -->
-    <aside class="side">
+  <main class="content">
+    <div class="chips">
+        <span class="chip">
+          감정 : <strong >sadness</strong>
+        </span>
+      <span class="chip">
+          상황 : <strong >party</strong>
+        </span>
+    </div>
 
-      <div class="side-content">
-        <p class="user-text" th:text="${userText}">오늘은 공부하느라 너무 우울해</p>
-        <form th:action="@{/}" method="get">
-          <button class="retry-btn" type="submit">다시 입력하기</button>
-        </form>
+    <div class="title-row">
+      <h2>추천 Playlist</h2>
+      <div class="count">
+        <span th:text="${songs.size()}"></span>/<span>20</span>곡
       </div>
-    </aside>
+    </div>
 
-
-    <!-- 우측: 상단 태그 + 3열 카드 그리드 -->
-    <section class="content">
-      <div class="tags">
-        <span class="tag">감정 : <b th:text="${emotion}">sadness</b></span>
-        <span class="tag">상황 : <b th:text="${situation}">party</b></span>
-      </div>
-
-      <div class="music-grid">
-        <div class="music-card" th:each="song : ${songs}">
-          <img th:src="${song.image}" th:alt="${song.title}" />
-          <div class="info">
-            <h3 th:text="${song.title}">제목</h3>
-            <p th:text="${song.artist}">아티스트</p>
-            <button class="play-btn" type="button">▶ 미리듣기</button>
-            <a class="spotify-link" th:href="${song.spotifyUrl}" target="_blank" rel="noopener">
-              Spotify에서 열기
-            </a>
-          </div>
-        </div>
-        <!-- 필요하면 placeholder 카드 추가 가능
-        <div class="music-card placeholder"></div> -->
-      </div>
-    </section>
-  </div>
-
-  <!-- ✅ /surface -->
+    <table class="playlist">
+      <thead>
+      <tr>
+        <th class="col-index">#</th>
+        <th class="col-title">제목</th>
+        <th class="col-artist">가수</th>
+        <th class="col-play">듣기</th>
+        <th class="col-time">
+          <svg aria-hidden="true" viewBox="0 0 24 24" class="ico-clock">
+            <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="t, iter : ${songs}">
+        <td class="col-index" th:text="${iter.index + 1}"></td>
+        <td class="col-title">
+          <span class="title" th:text="${t.title}"></span>
+        </td>
+        <td class="col-artist" th:text="${t.artist}"></td>
+        <td class="col-play">
+          <a class="play" th:href="@{'https://open.spotify.com/search/' + ${t.isrc}}" target="_blank" rel="noopener" aria-label="재생">
+            <svg viewBox="0 0 24 24" class="ico-play" aria-hidden="true">
+              <path d="M8 5l12 7-12 7z"></path>
+            </svg>
+          </a>
+        </td>
+        <td class="col-time" th:text="${t.length}"></td>
+      </tr>
+      </tbody>
+    </table>
+<!--    <div class="no-match" th:if="${needsSelection}">-->
+<!--      <p>해당하는 감정과 상황이 없습니다. 직접 선택하세요.</p>-->
+<!--      <button type="button" onclick="openSelectionModal()" class="btn">감정/상황 선택하기</button>-->
+<!--    </div>-->
+<!--    &lt;!&ndash; 모달  &ndash;&gt;-->
+<!--    <div th:replace="fragments/modal :: selectionModal"></div>-->
+  </main>
 </div>
+<script>
+  function openSelectionModal() {
+    const modal = document.getElementById('selectionModal');
+    if (!modal) {
+      console.warn('selectionModal not found in DOM');
+      return;
+    }
+    modal.classList.add('open');
+  }
+
+  function closeSelectionModal() {
+    const modal = document.getElementById('selectionModal');
+    if (!modal) return;
+    modal.classList.remove('open');
+  }
+
+  // 모달 외부 클릭으로 닫기 (선택사항)
+  document.addEventListener('click', function(e) {
+    const modal = document.getElementById('selectionModal');
+    if (!modal || !modal.classList.contains('open')) return;
+    // .modal-content 내부가 아닌 곳을 클릭하면 닫기
+    const content = modal.querySelector('.modal-content');
+    if (!content.contains(e.target)) closeSelectionModal();
+  });
+</script>
 </body>
 </html>
+
+
