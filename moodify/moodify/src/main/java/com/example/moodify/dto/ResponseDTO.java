@@ -10,5 +10,8 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class ResponseDTO {
+    private boolean selection;
+    private List<String> emotions;
+    private List<String> situations;
     private List<SongDTO> songs;
 }

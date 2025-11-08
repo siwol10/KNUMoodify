@@ -1,11 +1,12 @@
 package com.example.moodify.controller;
 
 import com.example.moodify.common.constans.Constant;
+import com.example.moodify.dto.RequestDTO;
+import com.example.moodify.dto.ResponseDTO;
 import com.example.moodify.dto.SongDTO;
+import com.example.moodify.service.IeumService;
 import com.example.moodify.service.TestService;
-import io.netty.util.internal.StringUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,14 +14,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 @Controller
-@Profile("test")  // 웹 화면 테스트용
+//@Profile("test")  // 웹 화면 테스트용
 @RequiredArgsConstructor
 public class ViewController { //화면 표시용
     private final TestService testService;
+    private final IeumService service;
 
     @GetMapping("/")
     public String home(Model model) {
@@ -29,15 +30,16 @@ public class ViewController { //화면 표시용
         System.out.println("log");
         return "home";
     }
-
+/*
     @GetMapping("/recommendations")
     public String recommendations(Model model) throws IOException {
         List<SongDTO> songs = testService.read().getSongs();
         System.out.println(songs.toString());
         model.addAttribute("songs", songs);
 
+
         return "result"; // 추천 결과 화면 템플릿
-    }
+    }*/
 
     @GetMapping("/check/recommendations")
     public ResponseEntity<Map<String, String>> checkRecommendations(@RequestParam String text) throws IOException {
@@ -54,12 +56,69 @@ public class ViewController { //화면 표시용
         return ResponseEntity.ok(resp);
     }
 
-    @PostMapping("/recommendations")
+    @PostMapping("analyze-and-recommend") // 처음 입력 시 분석 + 추천(목록에 있는 감정/상황일 경우)
+    public String analysisAndRecommendations(@RequestParam(value = "text", required = false) String text, Model model) throws IOException{
+        RequestDTO requestDTO = new RequestDTO();
+        requestDTO.setText(text);
+
+        ResponseDTO response = service.getAnalysisResultAndSongs(requestDTO);
+        if (response.isSelection()) { // 목록에 없는 상황이 입력된 경우 상황 선택 후 다시 추천
+            List<String> emotions = response.getEmotions();
+            List<String> situations = response.getSituations();
+
+            model.addAttribute("inputText", text);
+            model.addAttribute("emotions", emotions);
+            //model.addAttribute("situations", situations);
+
+            return "home";
+        } else {
+            List<SongDTO> songs = response.getSongs();
+            List<String> emotions = response.getEmotions();
+            List<String> situations = response.getSituations();
+
+            /*
+            Set<String> uniqueEmotions = getUniqueEmotions(songs);
+            Set<String> activeSituation = getActiveSituation(songs);
+            System.out.println("uniqueEmotions : " + uniqueEmotions.toString());
+            System.out.println("activeSituation : " + activeSituation.toString());
+
+            model.addAttribute("emotions", uniqueEmotions);
+            model.addAttribute("situations", activeSituation);
+            */
+
+            model.addAttribute("songs", songs);
+            model.addAttribute("inputText", text);
+            model.addAttribute("emotions", emotions);
+            model.addAttribute("situations", situations);
+
+            return "result";
+        }
+
+    }
+
+    @PostMapping("/recommend") // 선택한 상황에 따라 추천
     public String postRecommendations(
             @RequestParam(value = "text", required = false) String text,
-            @RequestParam(value = "emotion", required = false) String emotion, // 감정 선택한 경우
-            @RequestParam(value = "situation", required = false) String situation, // 상황 선택한 경우
+            @RequestParam(value = "emotion", required = false) List<String> emotions, // 감정 선택한 경우
+            @RequestParam(value = "situation", required = false) List<String> situations, // 상황 선택한 경우
             Model model) throws IOException {
+
+        RequestDTO requestDTO = new RequestDTO();
+        requestDTO.setText(text);
+        requestDTO.setEmotions(emotions);
+        requestDTO.setSituations(situations);
+
+        List<SongDTO> songs = service.getSongs(requestDTO).getSongs();
+        model.addAttribute("songs", songs);
+        model.addAttribute("inputText", text);
+        model.addAttribute("emotions", emotions);
+        model.addAttribute("situations", situations);
+
+
+        /*
+        System.out.println("text : " + text);
+        System.out.println("emotion : " + emotion);
+        System.out.println("situation : " + situation);
 
         System.out.println("text : " + text);
         System.out.println("emotion : " + emotion);
@@ -75,7 +134,10 @@ public class ViewController { //화면 표시용
         model.addAttribute("situations", activeSituation);
         model.addAttribute("songs", songs);
         model.addAttribute("inputText",text);
+        */
+
         return "result";
+
     }
 
     /**
