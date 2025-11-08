@@ -11,4 +11,13 @@ spring:
   mvc:
     problemdetails:
       enabled: true
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
+  thymeleaf:
+    cache: false
+
+
 

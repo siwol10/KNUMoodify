@@ -105,3 +105,13 @@ h1 {
   transform: translateY(-50%) scale(.98);
 }
 
+
+
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 999; }
+.modal.open {
+  display: flex; /* 또는 block + centering 처리 */
+}
+.modal-content { background: #fff; padding: 1.25rem; border-radius: 8px; max-width: 480px; width: 92%; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+.modal-actions { margin-top: 1rem; display:flex; gap: .5rem; justify-content:flex-end; }
+
+

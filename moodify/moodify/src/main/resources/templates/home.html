@@ -4,6 +4,71 @@
     <meta charset="UTF-8" />
     <title>IEUM</title>
     <link rel="stylesheet" th:href="@{/css/home.css}" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+
+    <script>
+
+        $(document).ready(function() {
+            $('#btn').click(function(e) { // id="btn" 버튼 클릭 시
+                e.preventDefault(); // 필수! 기본 폼 제출 막기
+
+                const inputText = $('#moodInput').val(); // 입력값 가져오기
+                $.ajax({
+                    url: '/check/recommendations',
+                    type: 'GET',
+                    data: { text: inputText }, // 쿼리 파라미터로 전송
+                    dataType: 'json',
+                    success: function(data) {
+                        // Y/N 체크
+                        if (data.emotion === 'N' || data.situation === 'N') {
+                            openSelectionModal(); // 모달 띄우기
+                        } else {
+                            $('#moodForm').submit();
+                        }
+                    },
+                    error: function() {
+                        console.error('데이터 확인 중 오류 발생');
+                    }
+                });
+            });
+        });
+
+
+        function openSelectionModal() {
+
+            const modal = document.getElementById('selectionModal');
+            if (!modal) {
+                console.warn('selectionModal not found in DOM');
+                return;
+            }
+            const moodInput = $('#moodInput').val();
+            $('#inputText').val(moodInput);
+            modal.style.display = 'flex'; // 또는 'block'
+            modal.classList.add('open');
+        }
+
+        function closeSelectionModal() {
+            const modal = document.getElementById('selectionModal');
+            if (!modal) {
+                return;
+            }
+
+            modal.style.display = 'none';
+            modal.classList.remove('open');
+        }
+
+        // 모달 외부 클릭으로 닫기 (선택사항)
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('selectionModal');
+            if (!modal || !modal.classList.contains('open')) return;
+            // .modal-content 내부가 아닌 곳을 클릭하면 닫기
+            /*const content = modal.querySelector('.modal-content');
+            if (!content.contains(e.target)) closeSelectionModal();*/
+        });
+    </script>
+
+
 </head>
 <body>
 <header class="header">IEUM</header>
@@ -14,7 +79,7 @@
             <div class="input-row">
                 <input id="moodInput" class="pill-input" type="text" name="text"
                        placeholder="오늘 하루는 어떠셨나요? (예: ‘면접 망해서 속상해..’)" required />
-                <button type="submit" class="submit-btn" aria-label="보내기">
+                <button type="button" class="submit-btn" aria-label="보내기" id="btn">
                     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                         <path d="M4 12h14m-6-6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
@@ -22,6 +87,18 @@
             </div>
         </form>
     </section>
+
+        <!--<div class="no-match">
+          <p>해당하는 감정과 상황이 없습니다. 직접 선택하세요.</p>
+          <button type="button" onclick="openSelectionModal()" class="btn">감정/상황 선택하기</button>
+        </div>-->
+        <!-- 모달  -->
+
+
+
 </main>
+<div th:replace="~{fragments/modal :: selectionModal}"></div>
 </body>
+
+
 </html>

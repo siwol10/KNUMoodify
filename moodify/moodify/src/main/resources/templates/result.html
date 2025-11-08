@@ -19,10 +19,10 @@
   <main class="content">
     <div class="chips">
         <span class="chip">
-          감정 : <strong >sadness</strong>
+          감정 : <strong ><span th:text="${#strings.arrayJoin(emotions, ', ')}"></span></strong>
         </span>
       <span class="chip">
-          상황 : <strong >party</strong>
+          상황 : <strong ><span th:text="${#strings.arrayJoin(situations, ', ')}"></span></strong>
         </span>
     </div>
 
@@ -56,7 +56,7 @@
         </td>
         <td class="col-artist" th:text="${t.artist}"></td>
         <td class="col-play">
-          <a class="play" th:href="@{'https://open.spotify.com/search/' + ${t.isrc}}" target="_blank" rel="noopener" aria-label="재생">
+          <a class="play" th:href="@{'https://open.spotify.com/search/isrc%3A' + ${t.isrc}}" target="_blank" rel="noopener" aria-label="재생">
             <svg viewBox="0 0 24 24" class="ico-play" aria-hidden="true">
               <path d="M8 5l12 7-12 7z"></path>
             </svg>
@@ -66,39 +66,8 @@
       </tr>
       </tbody>
     </table>
-<!--    <div class="no-match" th:if="${needsSelection}">-->
-<!--      <p>해당하는 감정과 상황이 없습니다. 직접 선택하세요.</p>-->
-<!--      <button type="button" onclick="openSelectionModal()" class="btn">감정/상황 선택하기</button>-->
-<!--    </div>-->
-<!--    &lt;!&ndash; 모달  &ndash;&gt;-->
-<!--    <div th:replace="fragments/modal :: selectionModal"></div>-->
   </main>
 </div>
-<script>
-  function openSelectionModal() {
-    const modal = document.getElementById('selectionModal');
-    if (!modal) {
-      console.warn('selectionModal not found in DOM');
-      return;
-    }
-    modal.classList.add('open');
-  }
-
-  function closeSelectionModal() {
-    const modal = document.getElementById('selectionModal');
-    if (!modal) return;
-    modal.classList.remove('open');
-  }
-
-  // 모달 외부 클릭으로 닫기 (선택사항)
-  document.addEventListener('click', function(e) {
-    const modal = document.getElementById('selectionModal');
-    if (!modal || !modal.classList.contains('open')) return;
-    // .modal-content 내부가 아닌 곳을 클릭하면 닫기
-    const content = modal.querySelector('.modal-content');
-    if (!content.contains(e.target)) closeSelectionModal();
-  });
-</script>
 </body>
 </html>
 

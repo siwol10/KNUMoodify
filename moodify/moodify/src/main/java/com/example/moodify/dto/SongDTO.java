@@ -22,4 +22,24 @@ public class SongDTO {
     private int driving;
     private int gathering;
     private int morning;
+
+    @Override
+    public String toString() {
+        return "SongDTO{" +
+                "artist='" + artist + '\'' +
+                ", title='" + title + '\'' +
+                ", emotion='" + emotion + '\'' +
+                ", length='" + length + '\'' +
+                ", isrc='" + isrc + '\'' +
+                ", party=" + party +
+                ", work=" + work +
+                ", relaxation=" + relaxation +
+                ", exercise=" + exercise +
+                ", running=" + running +
+                ", stretching=" + stretching +
+                ", driving=" + driving +
+                ", gathering=" + gathering +
+                ", morning=" + morning +
+                '}';
+    }
 }
