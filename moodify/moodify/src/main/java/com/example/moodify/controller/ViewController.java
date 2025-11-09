@@ -39,12 +39,16 @@ public class ViewController { //화면 표시용
         RequestDTO requestDTO = new RequestDTO();
         requestDTO.setText(text);
         ResponseDTO response = service.getAnalysisResultAndSongs(requestDTO);
+        System.out.println("response : " + response);
         boolean hasEmotion = (null != response.getEmotions()) ? true : false;
-        boolean hasSituation = response.isSelection();
+        boolean hasSituation = (response.isSelection()) ? false : true;
+        System.out.println("response: " + response);
+        System.out.println("hasEmotion: " + hasEmotion);
+        System.out.println("hasSituation: " + hasSituation);
         Map<String, Object> resp = new HashMap<>();
         resp.put("emotion", hasEmotion ? "Y" : "N");
-        resp.put("emotions", response.getEmotions());
         resp.put("situation", hasSituation ? "Y" : "N");
+        resp.put("emotions", response.getEmotions());
         return ResponseEntity.ok(resp);
     }
 

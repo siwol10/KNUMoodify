@@ -28,6 +28,7 @@
                             }
                         },
                         error: function() {
+                            alert('error');
                             console.error('데이터 확인 중 오류 발생');
                         }
                     });
@@ -108,7 +109,7 @@
     <main class="wrap">
         <section class="panel">
             <h1>오늘의 기분은 어떠신가요?</h1>
-            <form method="post" th:action="@{/analyze-and-recommend}">
+            <form method="post" th:action="@{/analyze-and-recommend}" id="moodForm">
                 <div class="input-row">
                     <input id="moodInput" class="pill-input" type="text" name="text"
                            placeholder="오늘 하루는 어떠셨나요? (예: ‘면접 망해서 속상해..’)" required />
