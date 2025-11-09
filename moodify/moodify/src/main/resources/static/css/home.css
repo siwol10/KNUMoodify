@@ -115,3 +115,10 @@ h1 {
 .modal-actions { margin-top: 1rem; display:flex; gap: .5rem; justify-content:flex-end; }
 
 
+.modal-content div {
+  margin-bottom: 0.5rem;
+}
+
+.modal-content input[type="checkbox"] {
+  margin-right: 0.3rem;
+}

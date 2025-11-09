@@ -1,24 +1,36 @@
-<!-- src/main/resources/templates/fragments/modal.html -->
 <div xmlns:th="http://www.thymeleaf.org" th:fragment="selectionModal">
-    <!-- 모달 DOM은 needsSelection이 true일 때만 렌더 (안뜨게 할 땐 컨트롤러에서 false) -->
     <div>
         <div id="selectionModal" class="modal">
             <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
                 <h3 id="modalTitle">감정과 상황을 선택해주세요</h3>
 
-                <form th:action="@{/recommendations}" method="post" style="display:flex;flex-direction:column;gap:.5rem;">
+                <form th:action="@{/recommend}" method="post" style="display:flex;flex-direction:column;gap:.5rem;">
                     <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <input type="hidden" id="inputText" name="text" th:value="${inputText}" />
 
-                    <label for="emotionSelect">감정</label>
-                    <select id="emotionSelect" name="emotion" required>
-                        <option th:each="e : ${candidateEmotions}" th:value="${e}" th:text="${e}"></option>
-                    </select>
+                    <!-- 감정 체크박스 -->
+                    <div>
+                        <label>감정</label>
+                        <div th:each="e : ${candidateEmotions}">
+                            <input type="checkbox"
+                                   name="emotion"
+                                   th:value="${e}"
+                                   th:id="'emotion-' + ${e}"
+                                   class="emotion-checkbox"
+                                   disabled /> <!-- 기본은 비활성화 -->
+                            <label th:for="'emotion-' + ${e}" th:text="${e}"></label>
+                        </div>
+                    </div>
 
-                    <label for="situationSelect">상황</label>
-                    <select id="situationSelect" name="situation" required>
-                        <option th:each="s : ${candidateSituations}" th:value="${s}" th:text="${s}"></option>
-                    </select>
+                    <!-- 상황 체크박스 -->
+                    <div>
+                        <label>상황</label>
+                        <div th:each="s : ${candidateSituations}">
+                            <input type="checkbox" name="situation" th:value="${s}" th:id="'situation-' + ${s}" />
+                            <label th:for="'situation-' + ${s}" th:text="${s}"></label>
+                        </div>
+                    </div>
+
                     <div class="modal-actions">
                         <button type="submit" class="btn-primary">선택하여 재추천</button>
                         <button type="button" class="btn" onclick="closeSelectionModal()">닫기</button>

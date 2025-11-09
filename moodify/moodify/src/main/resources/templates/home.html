@@ -6,7 +6,7 @@
     <link rel="stylesheet" th:href="@{/css/home.css}" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-    <!--
+
         <script>
 
             $(document).ready(function() {
@@ -22,7 +22,7 @@
                         success: function(data) {
                             // Y/N 체크
                             if (data.emotion === 'N' || data.situation === 'N') {
-                                openSelectionModal(); // 모달 띄우기
+                                openSelectionModalWithEmotions(data.emotions || [], data.situations || []);
                             } else {
                                 $('#moodForm').submit();
                             }
@@ -66,8 +66,41 @@
                 /*const content = modal.querySelector('.modal-content');
                 if (!content.contains(e.target)) closeSelectionModal();*/
             });
+
+            function openSelectionModalWithEmotions(emotionsFromServer, situationsFromServer) {
+                const modal = document.getElementById('selectionModal');
+                if (!modal) return;
+
+                // 감정 체크박스 초기화
+                $('.emotion-checkbox').each(function() {
+                    const val = $(this).val();
+                    if (emotionsFromServer.includes(val)) {
+                        $(this).prop('checked', true);
+                        $(this).prop('disabled', false);
+                    } else {
+                        $(this).prop('checked', false);
+                        $(this).prop('disabled', true);
+                    }
+                });
+
+                // 상황도 같은 방식으로 처리 가능
+                $('.situation-checkbox').each(function() {
+                    const val = $(this).val();
+                    if (situationsFromServer.includes(val)) {
+                        $(this).prop('checked', true);
+                        $(this).prop('disabled', false);
+                    } else {
+                        $(this).prop('checked', false);
+                        $(this).prop('disabled', true);
+                    }
+                });
+
+                modal.style.display = 'flex';
+                modal.classList.add('open');
+            }
+
         </script>
-    -->
+
 
     </head>
     <body>
