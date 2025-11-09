@@ -162,14 +162,13 @@ def analyze_situation_list(
     text: str,
     min_sim: float = 0.40,
     margin: float = 0.04,
-    return_unknown: bool = False,
-    unknown_when_lowconf: bool = True
+    low_sim_threshold: float = 0.35
 ) -> List[str]:
     """
-    항상 리스트 반환:
-      - 확정: ['work']
-      - 모호: ['running','exercise']
-      - 옵션: return_unknown=True 이고 top1<min_sim 이면 ['unknown']
+    반환 규칙:
+      - 상황 단서 없음 → ['None']
+      - 확정 1개 → ['work']
+      - 모호 top2 → ['running','exercise']
     """
     t = _normalize(text)
     sents = _split_sentences(t) or [t]
@@ -177,12 +176,19 @@ def analyze_situation_list(
     vote_acc: Dict[str, float] = {}
     emb_acc: Dict[str, List[float]] = {s: [] for s in SITUATIONS}
     kw_acc: Dict[str, List[float]] = {s: [] for s in SITUATIONS}
+    no_situation_count = 0  # 상황 단서 없음 감지 카운트
 
     for i, sent in enumerate(sents):
         kws = _keyword_scores(sent)
         embs = _embedding_scores(sent)
+
+        # 문장 단서 없음(키워드=0 & top1 유사도 낮음)
+        if (sum(kws.values()) == 0) and (max(embs.values()) < low_sim_threshold):
+            no_situation_count += 1
+
         decided, amb, top2 = _decide(kws, embs, sent, min_sim=min_sim, margin=margin)
 
+        # 가중치 적용
         weight = 1.0 + (i / max(1, len(sents) - 1)) * 0.2 if len(sents) > 1 else 1.0
         vote_acc[decided] = vote_acc.get(decided, 0.0) + weight
 
@@ -190,29 +196,28 @@ def analyze_situation_list(
             kw_acc[s].append(kws[s])
             emb_acc[s].append(embs[s])
 
-    # vote_acc가 비면 unknown 처리
-    if not vote_acc:
-        final = "unknown"
-    else:
-        final = max(vote_acc.items(), key=lambda x: x[1])[0]
+    # 문장 전체가 “상황 단서 없음”이면 ['None'] 반환
+    if no_situation_count == len(sents):
+        return ['None']
 
-    # 문서 레벨 모호성 판단
+    # 가드: 비정상 케이스
+    if not vote_acc:
+        return ['None']
+
+    # 최종 판정
+    final = max(vote_acc.items(), key=lambda x: x[1])[0]
     mean_emb = {s: (sum(vals)/len(vals) if vals else 0.0) for s, vals in emb_acc.items()}
     ranked = _rank(mean_emb)
     top2_global = ranked[:2] if ranked else []
-    ambiguous = (final == "unknown")
 
+    ambiguous = (final == "unknown")
     if not ambiguous and len(top2_global) >= 2:
         if (top2_global[0][1] - top2_global[1][1]) < margin or top2_global[0][1] < min_sim:
             ambiguous = True
 
     if ambiguous:
-        # 신뢰도 자체가 낮으면 unknown 노출 
-        if return_unknown and unknown_when_lowconf and top2_global and top2_global[0][1] < min_sim:
-            return ["unknown"]
-        # top2가 비면 최후의 수단으로 unknown
         if not top2_global:
-            return ["unknown"] if return_unknown else [final]
-        return [k for k, _ in top2_global] or [final]
+            return ['None']
+        return [k for k, _ in top2_global]
     else:
         return [final]
