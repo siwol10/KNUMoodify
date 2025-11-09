@@ -158,9 +158,18 @@ def _decide(kws: Dict[str, float], embs: Dict[str, float], text: str,
 
 # ========= 외부 API =========
 
-def analyze_situation_list(text: str, min_sim: float = 0.40, margin: float = 0.04) -> List[str]:
+def analyze_situation_list(
+    text: str,
+    min_sim: float = 0.40,
+    margin: float = 0.04,
+    return_unknown: bool = False,
+    unknown_when_lowconf: bool = True
+) -> List[str]:
     """
-    항상 리스트 반환: 확정 ['work'], 모호 ['running','exercise']
+    항상 리스트 반환:
+      - 확정: ['work']
+      - 모호: ['running','exercise']
+      - 옵션: return_unknown=True 이고 top1<min_sim 이면 ['unknown']
     """
     t = _normalize(text)
     sents = _split_sentences(t) or [t]
@@ -181,18 +190,29 @@ def analyze_situation_list(text: str, min_sim: float = 0.40, margin: float = 0.0
             kw_acc[s].append(kws[s])
             emb_acc[s].append(embs[s])
 
-    final = max(vote_acc.items(), key=lambda x: x[1])[0]
+    # vote_acc가 비면 unknown 처리
+    if not vote_acc:
+        final = "unknown"
+    else:
+        final = max(vote_acc.items(), key=lambda x: x[1])[0]
 
     # 문서 레벨 모호성 판단
-    mean_emb = {s: mean(vals) if vals else 0.0 for s, vals in emb_acc.items()}
-    top2_global = _rank(mean_emb)[:2]
+    mean_emb = {s: (sum(vals)/len(vals) if vals else 0.0) for s, vals in emb_acc.items()}
+    ranked = _rank(mean_emb)
+    top2_global = ranked[:2] if ranked else []
     ambiguous = (final == "unknown")
+
     if not ambiguous and len(top2_global) >= 2:
         if (top2_global[0][1] - top2_global[1][1]) < margin or top2_global[0][1] < min_sim:
             ambiguous = True
 
     if ambiguous:
-        labels = [k for k, _ in top2_global] or [final]
+        # 신뢰도 자체가 낮으면 unknown 노출 
+        if return_unknown and unknown_when_lowconf and top2_global and top2_global[0][1] < min_sim:
+            return ["unknown"]
+        # top2가 비면 최후의 수단으로 unknown
+        if not top2_global:
+            return ["unknown"] if return_unknown else [final]
+        return [k for k, _ in top2_global] or [final]
     else:
-        labels = [final]
-    return labels
+        return [final]
