@@ -24,6 +24,8 @@ class Song(BaseModel):
     driving: int
     gathering: int
     morning: int
+    id: str
+    url: str
 
 class WebResponse(BaseModel):
     selection: bool

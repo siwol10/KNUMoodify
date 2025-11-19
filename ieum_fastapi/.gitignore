@@ -170,3 +170,4 @@ models/
 wandb/
 logs/
 .DS_Store
+settings.py

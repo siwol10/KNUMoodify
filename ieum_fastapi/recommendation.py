@@ -1,19 +1,70 @@
 import pandas as pd
 import random
 from itertools import product
+from settings import settings
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
 
+sp = spotipy.Spotify(
+    auth_manager=SpotifyClientCredentials(
+        client_id=settings.SPOTIFY_CLIENT_ID,
+        client_secret=settings.SPOTIFY_CLIENT_SECRET
+    )
+)
+
+def get_track_from_artist_song(artist, song):
+    artist = str(artist).strip()
+    song = str(song).strip()
+
+    query = f"{artist} {song}"
+    results = sp.search(q=query, type="track", limit=1)
+
+    items = results.get("tracks", {}).get("items", [])
+    if not items:
+        query = f"track:{song} artist:{artist}"
+        results = sp.search(q=query, type="track", limit=1)
+        items = results.get("tracks", {}).get("items", [])
+
+        if not items:
+            return None
+
+    track = items[0]
+    track_id = track["id"]
+    track_url = track["external_urls"]["spotify"]
+    track_name = track["name"]
+    artists = ",".join(a["name"] for a in track["artists"])
+
+    return {"track_id": track_id, "track_url": track_url, "track_name": track_name, "artists": artists}
 
 def add_unique_song(emotion, situation, candidate_songs, recommendations):
     while True:
-        sample_song = candidate_songs[
-            (candidate_songs['emotion'] == emotion) & (candidate_songs[situation] == 1)].sample(n=1, ignore_index=True)
+        sample_song = candidate_songs[(candidate_songs['emotion'] == emotion) & (candidate_songs[situation] == 1)].sample(n=1, ignore_index=True)
+
+        artist = sample_song['artist'].iloc[0]
+        song = sample_song['song'].iloc[0]
+
+        info = get_track_from_artist_song(artist, song)
+
+        if info is None:
+            continue
+
+        dataset_artists = [a.strip().lower() for a in artist.split(",")]
+        spotify_artists = [a.strip().lower() for a in info["artists"].split(",")]
+
+        artist_match = any(a in spotify_artists for a in dataset_artists)
+        title_match = song.lower() in info["track_name"].lower()
+
+        if not (artist_match and title_match):
+            continue
+
+        sample_song["track_id"] = info["track_id"]
+        sample_song["track_url"] = info["track_url"]
 
         if len(recommendations) == 0:
             break
         else:
             recommendations_df = pd.concat(list(recommendations.values()), ignore_index=True)
-            duplicate_count = pd.concat([sample_song, recommendations_df]).duplicated().sum()
-            if duplicate_count == 0:
+            if sample_song["track_id"].iloc[0] not in recommendations_df["track_id"].tolist():
                 break
 
     recommendations[emotion] = pd.concat([recommendations.get(emotion, pd.DataFrame()), sample_song], axis=0, ignore_index=True)
@@ -146,4 +197,4 @@ def recommend(spotify_df, emotions, situations):
         final_recommendations = pd.DataFrame(columns=['artist', 'song', 'length', 'emotion', 'ISRC', *situations])
 
 
-    return final_recommendations.rename(columns={"song": "title", "ISRC": "isrc"}).to_dict(orient="records")
+    return final_recommendations.rename(columns={"song": "title", "ISRC": "isrc", "track_id": "id", "track_url": "url"}).to_dict(orient="records")
