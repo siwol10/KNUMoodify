@@ -22,6 +22,8 @@ public class SongDTO {
     private int driving;
     private int gathering;
     private int morning;
+    private String id;
+    private String url;
 
     @Override
     public String toString() {
@@ -40,6 +42,8 @@ public class SongDTO {
                 ", driving=" + driving +
                 ", gathering=" + gathering +
                 ", morning=" + morning +
+                ", id=" + id +
+                ", url=" + url +
                 '}';
     }
 }

@@ -56,7 +56,8 @@
         </td>
         <td class="col-artist" th:text="${t.artist}"></td>
         <td class="col-play">
-          <a class="play" th:href="@{'https://open.spotify.com/search/isrc%3A' + ${t.isrc}}" target="_blank" rel="noopener" aria-label="재생">
+          <a class="play" th:href="@{${t.url}}" target="_blank" rel="noopener" aria-label="재생">
+          <!-- <a class="play" th:href="@{'https://open.spotify.com/search/isrc%3A' + ${t.isrc}}" target="_blank" rel="noopener" aria-label="재생"> -->
             <svg viewBox="0 0 24 24" class="ico-play" aria-hidden="true">
               <path d="M8 5l12 7-12 7z"></path>
             </svg>

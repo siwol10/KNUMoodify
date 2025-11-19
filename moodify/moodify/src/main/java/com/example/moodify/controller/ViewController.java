@@ -5,7 +5,6 @@ import com.example.moodify.dto.RequestDTO;
 import com.example.moodify.dto.ResponseDTO;
 import com.example.moodify.dto.SongDTO;
 import com.example.moodify.service.IeumService;
-import com.example.moodify.service.TestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,10 +16,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
-//@Profile("test")  // 웹 화면 테스트용
 @RequiredArgsConstructor
 public class ViewController { //화면 표시용
-    private final TestService testService;
     private final IeumService service;
 
     // 홈
