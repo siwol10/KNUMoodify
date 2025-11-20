@@ -1,17 +1,31 @@
+# === Core ===
 fastapi==0.121.0
 uvicorn==0.38.0
-numpy==2.3.4
-pandas==2.3.3
-torch==2.9.0
-transformers==4.57.1
-accelerate==1.11.0
-safetensors==0.6.2
-sentencepiece==0.2.1
-tqdm==4.67.1
+pydantic==2.12.3
 python-dotenv==1.2.1
 requests==2.32.5
+tqdm==4.67.1
 
-sentence-transformers>=3.0,<3.4
+# === Data ===
+numpy==2.3.4
+pandas==2.3.3
+scikit-learn==1.7.2
+scipy==1.16.3
+
+# === NLP / DL Models ===
+torch==2.9.0
+transformers==4.57.1
+tokenizers==0.22.1
+sentencepiece==0.2.1
+accelerate==1.11.0
+sentence-transformers==3.3.1
+
+# === Korean NLP ===
 konlpy==0.6.0
-JPype1>=1.5.0
-lxml>=4.9.3
+jpype1==1.6.0
+
+# === Optional Tools ===
+spotipy==2.25.1      # Spotify API
+lxml==6.0.2          # XML/HTML 처리
+pillow==12.0.0       # 이미지 처리
+pipreqs==0.4.13      # requirements 자동 생성
