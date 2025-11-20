@@ -1,12 +1,16 @@
 import pandas as pd
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+
+import spotipy
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from recommendation import recommend
+from fastapi.responses import RedirectResponse, JSONResponse
+from recommendation import recommend, sp_oauth
 from inference import predict_one
 from situation_classifier import analyze_situation_list
-from schemas import PredictRequest, PredictResponse, WebResponse
-
+from schemas import Request, Response, PlaylistRequest, PlaylistResponse
+from typing import Dict
+from uuid import uuid4
 
 @asynccontextmanager
 async def load_dataset(app: FastAPI):
@@ -26,27 +30,85 @@ app.add_middleware(
     allow_credentials=True
 )
 
-@app.post("/analyze-and-recommend")
-def analyze_and_recommend(req: PredictRequest):
+STATE_STORE: Dict[str, Dict] = {}
+
+@app.post("/analyze-and-recommend", response_model=Response)
+def analyze_and_recommend(req: Request):
     emotions = [predict_one(req.text)]
     situations = analyze_situation_list(req.text)
 
     if not emotions: # 상황만 입력했을 경우(특정 감정 입력 X) -> 모든 감정을 가지고 플레이리스트 생성
         emotions = ['anger', 'sadness', 'joy', 'surprise', 'fear']
 
-    print('*** input', req)
-    print('*** emotions', emotions)
-    print('*** situations', situations)
-
     if 'None' in situations: #목록에 없는 상황이 입력된 경우 선택지 주기
-        return WebResponse(selection = True, emotions = emotions, situations = situations, songs = None)
+        return Response(selection = True, emotions = emotions, situations = situations, songs = None)
     else: # 목록에 있는 감정/상황이 입력된 경우 추천 진행
         songs = recommend(SPOTIFY_DF, emotions, situations)
-        return WebResponse(selection = False, emotions = emotions, situations = situations, songs = songs)
+        return Response(selection = False, emotions = emotions, situations = situations, songs = songs)
 
-@app.post("/recommend")
-def recommend_songs(req: PredictRequest):
+@app.post("/recommend", response_model=Response)
+def recommend_songs(req: Request):
     emotions = req.emotions
     situations = req.situations
     songs = recommend(SPOTIFY_DF, emotions, situations)
-    return WebResponse(selection = False, emotions = emotions, situations = situations, songs = songs)
+    return Response(selection = False, emotions = emotions, situations = situations, songs = songs)
+
+@app.post("/create-playlist", response_model=PlaylistResponse)
+def create_playlist(req: PlaylistRequest):
+    if not req.track_ids:
+        raise HTTPException(status_code=400, detail="track_ids가 비어 있습니다.")
+
+    state = uuid4().hex
+
+    STATE_STORE[state] = {
+        "track_ids": req.track_ids,
+        "name": req.name
+    }
+
+    authorize_url = sp_oauth.get_authorize_url(state=state)
+
+    return PlaylistResponse(authorize_url=authorize_url)
+
+@app.get("/callback")
+def spotify_callback(code: str | None = None, state: str | None = None):
+    if code is None or state is None:
+        raise HTTPException(status_code=400, detail="code 또는 state가 없습니다.")
+
+    if state not in STATE_STORE:
+        raise HTTPException(status_code=400, detail="유효하지 않은 state 입니다.")
+
+    data = STATE_STORE.pop(state)
+    track_ids = data["track_ids"]
+    playlist_name = data["name"]
+
+    token_info = sp_oauth.get_access_token(code, check_cache=False)
+    access_token = token_info["access_token"]
+    sp_user = spotipy.Spotify(auth=access_token)
+
+    user = sp_user.current_user()
+    user_id = user["id"]
+
+    playlist = sp_user.user_playlist_create(
+        user=user_id,
+        name=playlist_name,
+        public=False,
+        description=""
+    )
+
+    playlist_id = playlist["id"]
+
+    if track_ids:
+        sp_user.playlist_add_items(playlist_id, track_ids)
+
+    sp_user.playlist_change_details(
+        playlist_id=playlist_id,
+        public=False,
+        description=""
+    )
+
+    playlist_fetched = sp_user.playlist(playlist_id)
+    print("after change public:", playlist_fetched["public"])
+
+    playlist_url = playlist_fetched["external_urls"]["spotify"]
+
+    return RedirectResponse(url=playlist_url)
