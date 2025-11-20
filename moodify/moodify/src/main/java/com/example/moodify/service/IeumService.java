@@ -1,10 +1,13 @@
 package com.example.moodify.service;
 
+import com.example.moodify.dto.PlaylistRequestDTO;
+import com.example.moodify.dto.PlaylistResponseDTO;
 import com.example.moodify.dto.RequestDTO;
 import com.example.moodify.dto.ResponseDTO;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @Service
 public class IeumService {
@@ -32,5 +35,15 @@ public class IeumService {
                 .retrieve()
                 .bodyToMono(ResponseDTO.class)
                 .block();
+    }
+
+    public PlaylistResponseDTO createPlaylist(PlaylistRequestDTO playlistRequestDTO) { // 스포티파이에 플레이리스트 생성
+        return fastApi.post()
+                .uri("/create-playlist")
+                .bodyValue(playlistRequestDTO)
+                .retrieve()
+                .bodyToMono(PlaylistResponseDTO.class)
+                .block();
+
     }
 }

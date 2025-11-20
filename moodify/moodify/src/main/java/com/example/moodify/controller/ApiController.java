@@ -1,12 +1,16 @@
 package com.example.moodify.controller;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import com.example.moodify.dto.PlaylistRequestDTO;
+import com.example.moodify.dto.PlaylistResponseDTO;
 import com.example.moodify.dto.RequestDTO;
 import com.example.moodify.dto.ResponseDTO;
 import com.example.moodify.service.IeumService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @RestController
 @RequestMapping(value = "/api", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -22,5 +26,10 @@ public class ApiController {  //데이터 생성용 (FastAPI 호출)
     @PostMapping("/recommend") // <목록에 없는 상황이 입력된 경우> 선택한 상황에 따라 추천
     public ResponseDTO getRecommendations(@RequestBody RequestDTO requestDTO) {
         return service.getAnalysisResultAndSongs(requestDTO);
+    }
+
+    @PostMapping("/create-playlist") // 스포티파이에 플레이리스트 생성
+    public PlaylistResponseDTO createPlaylist(@RequestBody PlaylistRequestDTO playlistRequestDTO) {
+        return service.createPlaylist(playlistRequestDTO);
     }
 }

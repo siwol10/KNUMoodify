@@ -1,9 +1,7 @@
 package com.example.moodify.controller;
 
 import com.example.moodify.common.constans.Constant;
-import com.example.moodify.dto.RequestDTO;
-import com.example.moodify.dto.ResponseDTO;
-import com.example.moodify.dto.SongDTO;
+import com.example.moodify.dto.*;
 import com.example.moodify.service.IeumService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -58,16 +56,22 @@ public class ViewController { //화면 표시용
             @RequestParam(value = "situation", required = true) List<String> situations, // 상황 선택한 경우
             Model model) throws IOException {
 
-        RequestDTO requestDTO = new RequestDTO();
-        requestDTO.setText(text);
-        requestDTO.setEmotions(emotions);
-        requestDTO.setSituations(situations);
+        RequestDTO request = new RequestDTO();
+        request.setText(text);
+        request.setEmotions(emotions);
+        request.setSituations(situations);
 
-        List<SongDTO> songs = service.getSongs(requestDTO).getSongs();
+        List<SongDTO> songs = service.getSongs(request).getSongs();
+
+        List<String> trackIds = songs.stream()
+                .map(SongDTO::getId)
+                .toList();
+
         model.addAttribute("songs", songs);
         model.addAttribute("inputText", text);
         model.addAttribute("emotions", emotions);
         model.addAttribute("situations", situations);
+        model.addAttribute("trackIds", trackIds);
 
         return "result";
 
@@ -78,10 +82,10 @@ public class ViewController { //화면 표시용
     // 추천 결과
     @PostMapping("analyze-and-recommend") // 처음 입력 시 분석 + 추천(목록에 있는 감정/상황일 경우)
     public String analysisAndRecommendations(@RequestParam(value = "text", required = true) String text, Model model) throws IOException{
-        RequestDTO requestDTO = new RequestDTO();
-        requestDTO.setText(text);
+        RequestDTO request = new RequestDTO();
+        request.setText(text);
 
-        ResponseDTO response = service.getAnalysisResultAndSongs(requestDTO);
+        ResponseDTO response = service.getAnalysisResultAndSongs(request);
         if (response.isSelection()) { // 목록에 없는 상황이 입력된 경우 -> 상황 선택
             List<String> emotions = response.getEmotions();
             List<String> situations = response.getSituations();
@@ -96,16 +100,20 @@ public class ViewController { //화면 표시용
             List<String> emotions = response.getEmotions();
             List<String> situations = response.getSituations();
 
+            List<String> trackIds = songs.stream()
+                            .map(SongDTO::getId)
+                            .toList();
+
             model.addAttribute("songs", songs);
             model.addAttribute("inputText", text);
             model.addAttribute("emotions", emotions);
             model.addAttribute("situations", situations);
+            model.addAttribute("trackIds", trackIds);
 
             return "result";
         }
 
     }
-
 
     /**
      * 감정 중복제거

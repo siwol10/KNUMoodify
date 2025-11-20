@@ -90,22 +90,86 @@ body{
 }
 .chip strong{font-weight:600}
 
-.title-row{
-  margin-top:40px;
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-end;
+.title-row {
+  margin-top: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-.title-row h2{
-  margin:0;
-  font-size:40px;
-  letter-spacing:.3px;
+
+.left-group {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* 제목과 버튼 간격 */
 }
-.count{
-  color:var(--text);
-  font-weight:600;
+
+.title-row h2 {
+  margin: 0;
+  font-size: 40px;
+  letter-spacing: .3px;
+}
+
+.spotify-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.spotify-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 400;
+  background: #1DB954;
+  color: white;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .2s ease, transform .1s ease;
+}
+
+.spotify-btn:hover {
+  background: #1ed760;
+  transform: translateY(-1px);
+}
+
+.spotify-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.tooltip-text {
+  position: absolute;
+  left: 50%;
+  bottom: 110%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .15s ease;
+  z-index: 10;
+}
+
+/* 마우스를 버튼 쪽에 올렸을 때 */
+.spotify-tooltip:hover .tooltip-text {
+  opacity: 1;
+  visibility: visible;
+}
+
+.count {
+  color: var(--text);
+  font-weight: 600;
   font-size: 16px;
 }
+
 
 /* Table */
 table.playlist{

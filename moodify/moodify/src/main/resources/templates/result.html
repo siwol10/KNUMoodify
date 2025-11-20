@@ -4,6 +4,44 @@
   <meta charset="UTF-8" />
   <title>IEUM</title>
   <link rel="stylesheet" th:href="@{/css/result.css}" />
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    const trackIds = /*[[${trackIds}]]*/ [];
+
+    function createPlaylist() {
+        fetch('/api/create-playlist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                track_ids: trackIds,
+                name: 'IEUM 추천 플레이리스트'
+            })
+        })
+        .then(res => {
+            if (res.status === 403) {
+              alert('Spotify API 개발 모드 사용으로 인해 등록된 계정만 플레이리스트 저장이 가능합니다.');
+              return null;
+            }
+            if (!res.ok) {
+                throw new Error("서버 오류");
+            }
+            return res.json();
+        })
+        .then(data => {
+            if(!data) return;
+
+            const url = data.authorize_url;
+            window.open(url, '_blank');
+        })
+        .catch(err => {
+            console.error(err);
+            alert('플레이리스트 생성 중 오류가 발생했습니다.');
+        });
+    }
+    /*]]>*/
+  </script>
 </head>
 
 <body>
@@ -27,11 +65,23 @@
     </div>
 
     <div class="title-row">
-      <h2>추천 Playlist</h2>
+      <div class="left-group">
+        <h2>추천 Playlist</h2>
+
+        <div class="spotify-tooltip">
+          <button class="spotify-btn" type="button" onclick="createPlaylist()">
+            <img class="spotify-icon" src="https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg" alt="spotify">
+            Spotify에 저장
+          </button>
+          <span class="tooltip-text">생성된 플레이리스트의 공개/비공개 설정은<br>Spotify 앱에서 변경할 수 있습니다.</span>
+        </div>
+      </div>
+
       <div class="count">
         <span th:text="${songs.size()}"></span>/<span>20</span>곡
       </div>
     </div>
+
 
     <table class="playlist">
       <thead>

@@ -22,8 +22,8 @@ public class SongDTO {
     private int driving;
     private int gathering;
     private int morning;
-    private String id;
-    private String url;
+    private String id; // 해당 곡 ID
+    private String url; // 해당 곡으로 연결되는 링크
 
     @Override
     public String toString() {
