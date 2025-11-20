@@ -34,17 +34,18 @@ ENG2KOR = {
 
 # ===== 모델/토크나이저 로드 =====
 def _load_tokenizer_and_model():
-    """
-    1) 로컬 fine-tuned 모델(MODEL_DIR)이 있으면 그것을 로드
-    2) 없으면 허브의 'skt/kobert-base-v1' 로드 (분류헤드는 랜덤 초기화)
-       → 이 경우 추론 품질보다는 '서버 구동/호출 테스트' 용도
-    """
-    if os.path.exists(MODEL_DIR):
+    if os.path.isdir(MODEL_DIR):
+        print(f"[INFO] Loading fine-tuned model from: {MODEL_DIR}")
         tok = AutoTokenizer.from_pretrained(MODEL_DIR, use_fast=False)
-        mdl = AutoModelForSequenceClassification.from_pretrained(MODEL_DIR)
-        print(f"[INFO] Loaded fine-tuned model from: {MODEL_DIR}")
+        mdl = AutoModelForSequenceClassification.from_pretrained(
+            MODEL_DIR,
+            num_labels=len(LABEL_LIST),
+            id2label=ID2LABEL,
+            label2id={v: k for k, v in ID2LABEL.items()},
+        )
     else:
         base_id = "skt/kobert-base-v1"
+        print(f"[WARN] Fine-tuned model not found at {MODEL_DIR}. Loading base model: {base_id}")
         tok = AutoTokenizer.from_pretrained(base_id, use_fast=False)
         mdl = AutoModelForSequenceClassification.from_pretrained(
             base_id,
@@ -52,8 +53,8 @@ def _load_tokenizer_and_model():
             id2label=ID2LABEL,
             label2id={v: k for k, v in ID2LABEL.items()},
         )
-        print(f"[WARN] Fine-tuned model not found. Loaded base: {base_id} (for API smoke test)")
     return tok, mdl
+
 
 
 tokenizer, model = _load_tokenizer_and_model()
@@ -92,7 +93,4 @@ def predict_one(text: str) -> str:
     eng_label = model.config.id2label[pred_id] if hasattr(model.config, "id2label") else ID2LABEL[pred_id]
     kor_label = ENG2KOR.get(eng_label, eng_label)
 
-
-    # 요구 포맷에 맞게 반환
-    #return {"result": f'emotion="{kor_label}"'}
     return eng_label
