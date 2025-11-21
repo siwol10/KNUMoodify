@@ -2,38 +2,55 @@
     <div>
         <div id="selectionModal" class="modal">
             <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-                <h3 id="modalTitle">감정과 상황을 선택해주세요</h3>
+                <h3 id="modalTitle" class="modal-title">상황이 확인되지 않았어요. 추천을 위해 상황을 선택해주세요.</h3>
 
-                <form th:action="@{/recommend}" method="post" style="display:flex;flex-direction:column;gap:.5rem;">
+                <form th:action="@{/recommend}" method="post" class="modal-form">
                     <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <input type="hidden" id="inputText" name="text" th:value="${inputText}" />
 
-                    <!-- 감정 체크박스 -->
-                    <div>
-                        <label>감정</label>
-                        <div th:each="e : ${candidateEmotions}">
-                            <input type="checkbox"
-                                   name="emotion"
-                                   th:value="${e}"
-                                   th:id="'emotion-' + ${e}"
-                                   class="emotion-checkbox"
-                                   disabled /> <!-- 기본은 비활성화 -->
-                            <label th:for="'emotion-' + ${e}" th:text="${e}"></label>
+                    <div class="modal-section">
+                        <div class="modal-section-label">현재 감정</div>
+                        <div class="chip-row">
+                            <div th:each="e : ${candidateEmotions}">
+                                <input type="checkbox"
+                                       name="emotion"
+                                       th:value="${e}"
+                                       th:id="'emotion-' + ${e}"
+                                       class="chip-input emotion-checkbox"
+                                       disabled />
+                                <label th:for="'emotion-' + ${e}" class="chip-label emotion-chip" th:text="${e}"></label>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- 상황 체크박스 -->
-                    <div>
-                        <label>상황</label>
-                        <div th:each="s : ${candidateSituations}">
-                            <input type="checkbox" name="situation" th:value="${s}" th:id="'situation-' + ${s}" />
-                            <label th:for="'situation-' + ${s}" th:text="${s}"></label>
+                    <div class="modal-section">
+                        <div class="modal-section-label">
+                            상황 선택
+                            <span class="modal-section-helper"><span class="required-star">*</span>최대 2개까지 선택 가능</span>
                         </div>
+                        <div class="chip-grid">
+                            <div th:each="s : ${candidateSituations}">
+                                <input type="checkbox"
+                                       name="situation"
+                                       th:value="${s}"
+                                       th:id="'situation-' + ${s}"
+                                       class="chip-input"/>
+                                <label th:for="'situation-' + ${s}" class="chip-label" th:text="${s}"></label>
+                            </div>
+                        </div>
+                        <span id="situation-error" class="situation-error-text"></span>
                     </div>
 
                     <div class="modal-actions">
-                        <button type="submit" class="btn-primary">선택하여 재추천</button>
-                        <button type="button" class="btn" onclick="closeSelectionModal()">닫기</button>
+                        <button type="submit" class="chip-button chip-button-primary">
+                            선택하여 재추천
+                        </button>
+
+                        <button type="button"
+                                class="chip-button"
+                                onclick="closeSelectionModal()">
+                            닫기
+                        </button>
                     </div>
                 </form>
             </div>

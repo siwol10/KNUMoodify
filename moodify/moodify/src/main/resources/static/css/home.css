@@ -107,18 +107,224 @@ h1 {
 
 
 
-.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 999; }
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
 .modal.open {
-  display: flex; /* 또는 block + centering 처리 */
-}
-.modal-content { background: #fff; padding: 1.25rem; border-radius: 8px; max-width: 480px; width: 92%; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-.modal-actions { margin-top: 1rem; display:flex; gap: .5rem; justify-content:flex-end; }
-
-
-.modal-content div {
-  margin-bottom: 0.5rem;
+  display: flex;
 }
 
-.modal-content input[type="checkbox"] {
-  margin-right: 0.3rem;
+.modal-content {
+  background: #fff;
+  padding: 1.5rem 1.75rem;
+  border-radius: 12px;
+  max-width: 520px;
+  width: 92%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  font-size: 14px;
+}
+
+.modal-title {
+  margin: 0 0 1rem;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modal-section-label {
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.modal-section-helper {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.required-star {
+  color: #ef4444;
+  margin-right: 2px;
+}
+
+/* ---------- Chip 레이아웃 ---------- */
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem 0.75rem;
+}
+
+/* 실제 chip 스타일 */
+
+.chip-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.chip-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 90px;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #f3f4f6;
+  color: #111827;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color .15s ease,
+    color .15s ease,
+    border-color .15s ease,
+    box-shadow .15s ease,
+    transform .08s ease;
+}
+
+.chip-label:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+  transform: translateY(-1px);
+}
+
+/* 선택 상태 */
+
+.chip-input:checked + .chip-label {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(15,23,42,0.15);
+}
+
+/* 감정 chip (disabled) */
+
+.emotion-checkbox:disabled + .emotion-chip {
+  background: #e5e7eb;
+  border-color: #e5e7eb;
+  font-weight: 500;
+  cursor: default;
+  box-shadow: none;
+  transform: none;
+}
+
+/* 감정이 checked + disabled인 경우 (혹시 체크 상태로 내려올 때) */
+.emotion-checkbox:checked:disabled + .emotion-chip {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+/* 상황 chip disabled일 경우 대비 (필요하면 사용) */
+.chip-input:disabled + .chip-label {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 버튼 영역 */
+
+.modal-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.situation-error-text {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: #ef4444; /* 빨간색 */
+  height: 16px; /* 공간 확보용 */
+}
+
+/* ---------- Chip 스타일 버튼 버전 ---------- */
+
+/* 공통 chip-button 스타일 */
+.chip-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #f3f4f6; /* chip 기본 배경 */
+  color: #111827;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color .15s ease,
+    color .15s ease,
+    border-color .15s ease,
+    box-shadow .15s ease,
+    transform .08s ease;
+}
+
+/* hover */
+.chip-button:hover {
+  border-color: #d1d5db;
+  background: #e5e7eb;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+  transform: translateY(-1px);
+}
+
+/* active */
+.chip-button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* ----- 주 버튼 (검정) - chip 선택된 상태 스타일 ----- */
+.chip-button-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.chip-button-primary:hover {
+  background: #000;
+  border-color: #000;
+  box-shadow: 0 1px 2px rgba(0,0,0,.15);
+}
+
+.chip-button-primary:active {
+  transform: translateY(0);
+}
+
+/* 버튼 disabled 버전 (필요 시) */
+.chip-button:disabled,
+.chip-button-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
