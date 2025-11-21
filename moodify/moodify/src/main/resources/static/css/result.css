@@ -18,7 +18,6 @@ body{
   overflow: hidden;
 }
 
-/* Layout */
 .app{
   display:grid;
   grid-template-columns: 30% 70%;
@@ -69,7 +68,6 @@ body{
 .btn:active{transform:translateY(1px)}
 .btn:hover{background:#f1f5f9}
 
-/* Main */
 .content{
   padding:40px 50px;
   background: #fff;
@@ -108,7 +106,7 @@ body{
 .left-group {
   display: flex;
   align-items: center;
-  gap: 20px; /* 제목과 버튼 간격 */
+  gap: 20px;
 }
 
 .title-row h2 {
@@ -166,7 +164,6 @@ body{
   z-index: 10;
 }
 
-/* 마우스를 버튼 쪽에 올렸을 때 */
 .spotify-tooltip:hover .tooltip-text {
   opacity: 1;
   visibility: visible;
@@ -178,8 +175,6 @@ body{
   font-size: 16px;
 }
 
-
-/* Table */
 table.playlist{
   width:100%;
   border-collapse:collapse;
@@ -221,7 +216,6 @@ table.playlist{
   position:relative; top:2px;
 }
 
-/* Icons */
 .ico-play{
   width:20px;height:20px; display:block;
   fill:currentColor;
@@ -231,7 +225,6 @@ table.playlist{
   color:var(--muted);
 }
 
-/* Play button */
 .play{
   width:28px;height:28px;
   border-radius:999px;
@@ -246,7 +239,6 @@ table.playlist{
 .play:hover{background:#f8fafc}
 .play:active{transform:translateY(1px)}
 
-/* Responsive */
 @media (max-width: 960px){
   .app{grid-template-columns: 1fr}
   .sidebar{border-right:none;border-bottom:1px solid var(--border)}
@@ -254,8 +246,3 @@ table.playlist{
   .title-row h2{font-size:32px}
   .col-artist{display:none}
 }
-
-.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 999; }
-.modal.open { display: flex; }
-.modal-content { background: #fff; padding: 1.25rem; border-radius: 8px; max-width: 480px; width: 92%; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-.modal-actions { margin-top: 1rem; display:flex; gap: .5rem; justify-content:flex-end; }

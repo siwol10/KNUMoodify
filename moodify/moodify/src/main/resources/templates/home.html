@@ -4,27 +4,30 @@
     <meta charset="UTF-8" />
     <title>IEUM</title>
     <link rel="stylesheet" th:href="@{/css/home.css}" />
+    <link rel="icon" type="image/x-icon" th:href="@{/css/images/favicon.ico}" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 
         <script>
+            function showLoading() {
+                    $('#loadingOverlay').addClass('show');
+                }
 
             $(document).ready(function() {
-                $('#btn').click(function(e) { // id="btn" 버튼 클릭 시
-                    e.preventDefault(); // 필수! 기본 폼 제출 막기
+                $('#btn').click(function(e) {
+                    e.preventDefault();
 
-                    const inputText = $('#moodInput').val(); // 입력값 가져오기
+                    const inputText = $('#moodInput').val();
                     $.ajax({
                         url: '/check/recommendations',
                         type: 'GET',
-                        data: { text: inputText }, // 쿼리 파라미터로 전송
+                        data: { text: inputText },
                         dataType: 'json',
                         success: function(data) {
                             // Y/N 체크
                             if (data.emotion === 'N' || data.situation === 'N') {
                                 openSelectionModalWithEmotions(data.emotions || [], data.situations || []);
                             } else {
-                                // 바로 추천 페이지로 넘어가는 경우 → 로딩 표시
                                 showLoading();
                                 $('#moodForm').submit();
                             }
@@ -37,22 +40,13 @@
                 });
                 $('#moodInput').keypress(function(e) {
                     if (e.key === 'Enter') {
-                        e.preventDefault();          // 기본 submit 막기
-                        $('#btn').click();           // btn 클릭 이벤트 강제 호출
+                        e.preventDefault();
+                        $('#btn').click();
                     }
                 });
-                function showLoading() {
-                    $('#loadingOverlay').addClass('show');
-                }
-                $(document).on('submit', '.modal-form', function() {
-                    showLoading();
-                });
-
             });
 
-
             function openSelectionModal() {
-
                 const modal = document.getElementById('selectionModal');
                 if (!modal) {
                     console.warn('selectionModal not found in DOM');
@@ -74,11 +68,10 @@
                 modal.classList.remove('open');
             }
 
-            // 모달 외부 클릭으로 닫기 (선택사항)
             document.addEventListener('click', function(e) {
                 const modal = document.getElementById('selectionModal');
                 if (!modal || !modal.classList.contains('open')) return;
-                // .modal-content 내부가 아닌 곳을 클릭하면 닫기
+                // .modal-content
                 /*const content = modal.querySelector('.modal-content');
                 if (!content.contains(e.target)) closeSelectionModal();*/
             });
@@ -99,7 +92,7 @@
                     }
                 });
 
-                // 상황도 같은 방식으로 처리 가능
+                // 상황 체크박스 초기화
                 $('.situation-checkbox').each(function() {
                     const val = $(this).val();
                     if (situationsFromServer.includes(val)) {
@@ -119,7 +112,6 @@
                 const $situationInputs = $('input[name="situation"]');
                 const $error = $('#situation-error');
 
-                // 에러 메시지 초기화
                 function showError(msg) {
                   $error.text(msg);
                 }
@@ -128,34 +120,35 @@
                   $error.text('');
                 }
 
-                // 체크 제한
                 $situationInputs.on('change', function () {
                   const checkedCount = $situationInputs.filter(':checked').length;
 
                   if (checkedCount > maxSituation) {
-                    this.checked = false;   // 방금 체크한 항목 해제
+                    this.checked = false;
                     showError('상황은 최대 2개까지 선택할 수 있습니다.');
                     return;
                   }
-
-                  // 0~2개 범위라면 에러 지우기
                   clearError();
                 });
 
-                // 제출 시에도 검사
                 $('.modal-form').on('submit', function (e) {
-                  const checkedCount = $situationInputs.filter(':checked').length;
+                    const checkedCount = $situationInputs.filter(':checked').length;
 
-                  if (checkedCount === 0) {
-                    e.preventDefault();
-                    showError('상황을 1개 이상 선택해 주세요.');
-                  } else if (checkedCount > maxSituation) {
-                    e.preventDefault();
-                    showError('상황은 최대 2개까지 선택 가능합니다.');
-                  } else {
+                    if (checkedCount === 0) {
+                      e.preventDefault();
+                      showError('상황을 1개 이상 선택해 주세요.');
+                      return;
+                    }
+
+                    if (checkedCount > maxSituation) {
+                      e.preventDefault();
+                      showError('상황은 최대 2개까지 선택 가능합니다.');
+                      return;
+                    }
+
                     clearError();
-                  }
-                });
+                    showLoading();
+                  });
               });
 
         </script>
@@ -184,7 +177,7 @@
 
     </main>
     <div th:replace="~{fragments/modal :: selectionModal}"></div>
-    <!-- 로딩 오버레이 -->
+
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-box">
             <div class="loading-spinner"></div>
