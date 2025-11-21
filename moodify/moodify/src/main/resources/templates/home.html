@@ -24,6 +24,8 @@
                             if (data.emotion === 'N' || data.situation === 'N') {
                                 openSelectionModalWithEmotions(data.emotions || [], data.situations || []);
                             } else {
+                                // 바로 추천 페이지로 넘어가는 경우 → 로딩 표시
+                                showLoading();
                                 $('#moodForm').submit();
                             }
                         },
@@ -39,6 +41,13 @@
                         $('#btn').click();           // btn 클릭 이벤트 강제 호출
                     }
                 });
+                function showLoading() {
+                    $('#loadingOverlay').addClass('show');
+                }
+                $(document).on('submit', '.modal-form', function() {
+                    showLoading();
+                });
+
             });
 
 
@@ -173,9 +182,17 @@
             </form>
         </section>
 
-</main>
-<div th:replace="~{fragments/modal :: selectionModal}"></div>
-</body>
+    </main>
+    <div th:replace="~{fragments/modal :: selectionModal}"></div>
+    <!-- 로딩 오버레이 -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-box">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">추천 곡을 불러오는 중이에요...</p>
+        </div>
+    </div>
+
+    </body>
 
 
 </html>
