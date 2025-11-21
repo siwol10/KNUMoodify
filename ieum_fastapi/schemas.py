@@ -34,5 +34,5 @@ class PlaylistRequest(BaseModel):
     track_ids: List[str]
     name: str = "IEUM 추천 플레이리스트"
 
-class PlaylistResponse(BaseModel):
+class LoginResponse(BaseModel):
     authorize_url: str
