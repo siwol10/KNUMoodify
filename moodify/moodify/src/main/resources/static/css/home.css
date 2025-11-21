@@ -106,6 +106,19 @@ h1 {
   transform: translateY(-50%) scale(.98);
 }
 
+.input-error-text {
+  margin: 6px 4px 0;
+  font-size: 13px;
+  color: #ef4444;
+  min-height: 16px;
+}
+
+.pill-input.input-error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.3);
+}
+
+
 
 
 .modal {
