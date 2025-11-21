@@ -1,14 +1,14 @@
 import pandas as pd
 from contextlib import asynccontextmanager
-
 import spotipy
+from spotipy.exceptions import SpotifyException
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.responses import RedirectResponse, HTMLResponse
 from recommendation import recommend, sp_oauth
 from inference import predict_one
 from situation_classifier import analyze_situation_list
-from schemas import Request, Response, PlaylistRequest, PlaylistResponse
+from schemas import Request, Response, PlaylistRequest, LoginResponse
 from typing import Dict
 from uuid import uuid4
 
@@ -40,6 +40,10 @@ def analyze_and_recommend(req: Request):
     if not emotions: # 상황만 입력했을 경우(특정 감정 입력 X) -> 모든 감정을 가지고 플레이리스트 생성
         emotions = ['anger', 'sadness', 'joy', 'surprise', 'fear']
 
+    print('*** input', req)
+    print('*** emotions', emotions)
+    print('*** situations', situations)
+
     if 'None' in situations: #목록에 없는 상황이 입력된 경우 선택지 주기
         return Response(selection = True, emotions = emotions, situations = situations, songs = None)
     else: # 목록에 있는 감정/상황이 입력된 경우 추천 진행
@@ -50,11 +54,16 @@ def analyze_and_recommend(req: Request):
 def recommend_songs(req: Request):
     emotions = req.emotions
     situations = req.situations
+
+    print('*** input', req)
+    print('*** emotions', emotions)
+    print('*** situations', situations)
+
     songs = recommend(SPOTIFY_DF, emotions, situations)
     return Response(selection = False, emotions = emotions, situations = situations, songs = songs)
 
-@app.post("/create-playlist", response_model=PlaylistResponse)
-def create_playlist(req: PlaylistRequest):
+@app.post("/spotify-login", response_model=LoginResponse)
+def start_spotify_login(req: PlaylistRequest):
     if not req.track_ids:
         raise HTTPException(status_code=400, detail="track_ids가 비어 있습니다.")
 
@@ -67,7 +76,7 @@ def create_playlist(req: PlaylistRequest):
 
     authorize_url = sp_oauth.get_authorize_url(state=state)
 
-    return PlaylistResponse(authorize_url=authorize_url)
+    return LoginResponse(authorize_url=authorize_url)
 
 @app.get("/callback")
 def spotify_callback(code: str | None = None, state: str | None = None):
@@ -85,7 +94,23 @@ def spotify_callback(code: str | None = None, state: str | None = None):
     access_token = token_info["access_token"]
     sp_user = spotipy.Spotify(auth=access_token)
 
-    user = sp_user.current_user()
+    try:
+        user = sp_user.current_user()
+    except SpotifyException as e: # 대시보드에 등록 안 된 계정 -> alert 창 띄우기
+        if e.http_status == 403 and "user may not be registered" in str(e):
+            html = """
+            <html>
+              <body>
+                <script>
+                  alert('Spotify API 개발 모드 제한으로 인해 등록된 계정만 플레이리스트 저장이 가능합니다.');
+                  window.close();
+                </script>
+              </body>
+            </html>
+             """
+            return HTMLResponse(content=html, status_code=200)
+        raise
+
     user_id = user["id"]
 
     playlist = sp_user.user_playlist_create(
@@ -107,7 +132,6 @@ def spotify_callback(code: str | None = None, state: str | None = None):
     )
 
     playlist_fetched = sp_user.playlist(playlist_id)
-    print("after change public:", playlist_fetched["public"])
 
     playlist_url = playlist_fetched["external_urls"]["spotify"]
 
