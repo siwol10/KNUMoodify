@@ -8,8 +8,8 @@
     /*<![CDATA[*/
     const trackIds = /*[[${trackIds}]]*/ [];
 
-    function createPlaylist() {
-        fetch('/api/create-playlist', {
+    function startSpotifyLogin() {
+        fetch('/api/spotify-login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -20,24 +20,18 @@
             })
         })
         .then(res => {
-            if (res.status === 403) {
-              alert('Spotify API 개발 모드 사용으로 인해 등록된 계정만 플레이리스트 저장이 가능합니다.');
-              return null;
-            }
             if (!res.ok) {
                 throw new Error("서버 오류");
             }
             return res.json();
         })
         .then(data => {
-            if(!data) return;
-
             const url = data.authorize_url;
             window.open(url, '_blank');
         })
         .catch(err => {
             console.error(err);
-            alert('플레이리스트 생성 중 오류가 발생했습니다.');
+            alert('플레이리스트 생성 중 오류가 발생했습니다. 다시 시도해 주세요.');
         });
     }
     /*]]>*/
@@ -71,7 +65,7 @@
         <h2>추천 Playlist</h2>
 
         <div class="spotify-tooltip">
-          <button class="spotify-btn" type="button" onclick="createPlaylist()">
+          <button class="spotify-btn" type="button" onclick="startSpotifyLogin()">
             <img class="spotify-icon" src="https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg" alt="spotify">
             Spotify에 저장
           </button>
@@ -109,7 +103,6 @@
         <td class="col-artist" th:text="${t.artist}"></td>
         <td class="col-play">
           <a class="play" th:href="@{${t.url}}" target="_blank" rel="noopener" aria-label="재생">
-          <!-- <a class="play" th:href="@{'https://open.spotify.com/search/isrc%3A' + ${t.isrc}}" target="_blank" rel="noopener" aria-label="재생"> -->
             <svg viewBox="0 0 24 24" class="ico-play" aria-hidden="true">
               <path d="M8 5l12 7-12 7z"></path>
             </svg>
