@@ -3,6 +3,7 @@ package com.example.moodify.controller;
 import com.example.moodify.common.constans.Constant;
 import com.example.moodify.dto.*;
 import com.example.moodify.service.IeumService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -44,6 +45,7 @@ public class ViewController { //화면 표시용
         resp.put("emotion", hasEmotion ? "Y" : "N");
         resp.put("situation", hasSituation ? "Y" : "N");
         resp.put("emotions", response.getEmotions());
+        resp.put("response", response);
         return ResponseEntity.ok(resp);
     }
 
@@ -79,39 +81,31 @@ public class ViewController { //화면 표시용
     }
 
 
-
     // 추천 결과
     @PostMapping("analyze-and-recommend") // 처음 입력 시 분석 + 추천(목록에 있는 감정/상황일 경우)
-    public String analysisAndRecommendations(@RequestParam(value = "text", required = true) String text, Model model) throws IOException{
+    public String analysisAndRecommendations(
+            @RequestParam(value = "text", required = true) String text,
+            @RequestParam(value = "analysisResult", required = true) String analysisResult,
+            Model model) throws IOException {
+
         RequestDTO request = new RequestDTO();
         request.setText(text);
-        System.out.println("analyze-and-recommend");
-        ResponseDTO response = service.getAnalysisResultAndSongs(request);
-        if (response.isSelection()) { // 목록에 없는 상황이 입력된 경우 -> 상황 선택
-            List<String> emotions = response.getEmotions();
-            List<String> situations = response.getSituations();
+        ObjectMapper mapper = new ObjectMapper();
+        ResponseDTO response = mapper.readValue(analysisResult, ResponseDTO.class);
+        List<SongDTO> songs = response.getSongs();
+        List<String> emotions = response.getEmotions();
+        List<String> situations = response.getSituations();
 
-            model.addAttribute("inputText", text);
-            model.addAttribute("emotions", emotions);
-            //model.addAttribute("situations", situations);
+        List<String> trackIds = songs.stream()
+                .map(SongDTO::getId)
+                .toList();
 
-            return "home"; // 상황 선택할 페이지 (상황 선택 후 /recommend로 이동하면 됨)
-        } else {  // 목록에 있는 상황/감정 -> 추천 리스트 보여줌
-            List<SongDTO> songs = response.getSongs();
-            List<String> emotions = response.getEmotions();
-            List<String> situations = response.getSituations();
-
-            List<String> trackIds = songs.stream()
-                            .map(SongDTO::getId)
-                            .toList();
-
-            model.addAttribute("songs", songs);
-            model.addAttribute("inputText", text);
-            model.addAttribute("emotions", emotions);
-            model.addAttribute("situations", situations);
-            model.addAttribute("trackIds", trackIds);
-            return "result";
-        }
+        model.addAttribute("songs", songs);
+        model.addAttribute("inputText", text);
+        model.addAttribute("emotions", emotions);
+        model.addAttribute("situations", situations);
+        model.addAttribute("trackIds", trackIds);
+        return "result";
     }
 
 }

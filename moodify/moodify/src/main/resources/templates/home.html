@@ -51,8 +51,12 @@
             }
 
             function showLoading() {
-                    $('#loadingOverlay').addClass('show');
-                }
+                $('#loadingOverlay').addClass('show');
+            }
+
+            function hideLoading() {
+                $('#loadingOverlay').removeClass('show');
+            }
 
             $(document).ready(function() {
                 $('#btn').click(function(e) {
@@ -66,19 +70,22 @@
                         return; // 유효성 실패 → AJAX 안 보냄
                     }
                     clearMoodError();
-
+                    showLoading();
                     $.ajax({
                         url: '/check/recommendations',
                         type: 'GET',
                         data: { text: inputText },
                         dataType: 'json',
                         success: function(data) {
+                            hideLoading();
                             // Y/N 체크
                             if (data.emotion === 'N' || data.situation === 'N') {
                                 $('#inputText').val(inputText);
                                 openSelectionModalWithEmotions(data.emotions || [], data.situations || []);
                             } else {
-                                showLoading();
+
+                                const responseObject = data.response;
+                                $('#analysisResult').val(JSON.stringify(responseObject));
                                 $('#moodForm').submit();
                             }
                         },
@@ -217,6 +224,7 @@
         <section class="panel">
             <h1>오늘의 기분은 어떠신가요?</h1>
             <form method="post" th:action="@{/analyze-and-recommend}" id="moodForm">
+                <input type="hidden" name="analysisResult" id="analysisResult" />
                 <div class="input-row">
                     <input id="moodInput" class="pill-input" type="text" name="text"
                            placeholder="오늘 하루는 어떠셨나요? (예: ‘면접 망해서 속상해..’)" required />
