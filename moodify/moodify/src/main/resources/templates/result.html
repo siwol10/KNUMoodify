@@ -4,38 +4,6 @@
   <meta charset="UTF-8" />
   <title>IEUM</title>
   <link rel="stylesheet" th:href="@{/css/result.css}" />
-  <script th:inline="javascript">
-    /*<![CDATA[*/
-    const trackIds = /*[[${trackIds}]]*/ [];
-
-    function startSpotifyLogin() {
-        fetch('/api/spotify-login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                track_ids: trackIds,
-                name: 'IEUM 추천 플레이리스트'
-            })
-        })
-        .then(res => {
-            if (!res.ok) {
-                throw new Error("서버 오류");
-            }
-            return res.json();
-        })
-        .then(data => {
-            const url = data.authorize_url;
-            window.open(url, '_blank');
-        })
-        .catch(err => {
-            console.error(err);
-            alert('플레이리스트 생성 중 오류가 발생했습니다. 다시 시도해 주세요.');
-        });
-    }
-    /*]]>*/
-  </script>
 </head>
 
 <body>
@@ -114,6 +82,54 @@
     </table>
   </main>
 </div>
+
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  const trackIds = /*[[${trackIds}]]*/ [];
+
+  const hasValidTrackIds = Array.isArray(trackIds) && trackIds.some(id => id !== null && id !== undefined && id !== "");
+
+  if (!hasValidTrackIds) {
+    const btn = document.querySelector('.spotify-btn');
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.add('disabled');
+    }
+
+    const tooltip = document.querySelector('.spotify-tooltip .tooltip-text');
+    if (tooltip) {
+      tooltip.innerHTML = '현재 Spotify API 오류로 플레이리스트 저장 기능을 이용할 수 없습니다.<br>잠시 후 다시 시도해 주세요.';
+    }
+  }
+
+  function startSpotifyLogin() {
+      fetch('/api/spotify-login', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+              track_ids: trackIds,
+              name: 'IEUM 추천 플레이리스트'
+          })
+      })
+      .then(res => {
+          if (!res.ok) {
+              throw new Error("서버 오류");
+          }
+          return res.json();
+      })
+      .then(data => {
+          const url = data.authorize_url;
+          window.open(url, '_blank');
+      })
+      .catch(err => {
+          console.error(err);
+          alert('플레이리스트 생성 중 오류가 발생했습니다. 다시 시도해 주세요.');
+      });
+  }
+  /*]]>*/
+</script>
 </body>
 </html>
 

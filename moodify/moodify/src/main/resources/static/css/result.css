@@ -140,6 +140,12 @@ body{
   transform: translateY(-1px);
 }
 
+.spotify-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .spotify-icon {
   width: 18px;
   height: 18px;
