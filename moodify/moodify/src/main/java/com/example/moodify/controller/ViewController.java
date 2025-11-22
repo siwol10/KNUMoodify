@@ -30,7 +30,7 @@ public class ViewController { //화면 표시용
     // 사용자 입력값 상황, 분석 여부 체크
     @GetMapping("/check/recommendations")
     public ResponseEntity<Map<String, Object>> checkRecommendations(@RequestParam String text) throws IOException {
-        System.out.println("호출 테스트");
+        System.out.println("/check/recommendations");
         RequestDTO requestDTO = new RequestDTO();
         requestDTO.setText(text);
         ResponseDTO response = service.getAnalysisResultAndSongs(requestDTO);
@@ -55,7 +55,8 @@ public class ViewController { //화면 표시용
             @RequestParam(value = "emotion", required = true) List<String> emotions, // 감정 선택한 경우
             @RequestParam(value = "situation", required = true) List<String> situations, // 상황 선택한 경우
             Model model) throws IOException {
-
+        System.out.println("recommend");
+        System.out.println("text : " + text);
         RequestDTO request = new RequestDTO();
         request.setText(text);
         request.setEmotions(emotions);
@@ -84,7 +85,7 @@ public class ViewController { //화면 표시용
     public String analysisAndRecommendations(@RequestParam(value = "text", required = true) String text, Model model) throws IOException{
         RequestDTO request = new RequestDTO();
         request.setText(text);
-
+        System.out.println("analyze-and-recommend");
         ResponseDTO response = service.getAnalysisResultAndSongs(request);
         if (response.isSelection()) { // 목록에 없는 상황이 입력된 경우 -> 상황 선택
             List<String> emotions = response.getEmotions();
@@ -109,40 +110,8 @@ public class ViewController { //화면 표시용
             model.addAttribute("emotions", emotions);
             model.addAttribute("situations", situations);
             model.addAttribute("trackIds", trackIds);
-
             return "result";
         }
-
     }
-
-    /**
-     * 감정 중복제거
-     * @param songs
-     * @return
-     */
-    private Set<String> getUniqueEmotions(List<SongDTO> songs) {
-        Set<String> uniqueEmotions = songs.stream()
-                .map(SongDTO::getEmotion)
-                .collect(Collectors.toSet());
-        return uniqueEmotions;
-
-    }
-
-    private Set<String> getActiveSituation(List<SongDTO> songs) {
-        Set<String> activeFields = new HashSet<>();
-        for (SongDTO song : songs) {
-            if (song.getParty() == 1) activeFields.add("party");
-            if (song.getWork() == 1) activeFields.add("work");
-            if (song.getRelaxation() == 1) activeFields.add("relaxation");
-            if (song.getExercise() == 1) activeFields.add("exercise");
-            if (song.getRunning() == 1) activeFields.add("running");
-            if (song.getStretching() == 1) activeFields.add("stretching");
-            if (song.getDriving() == 1) activeFields.add("driving");
-            if (song.getGathering() == 1) activeFields.add("gathering");
-            if (song.getMorning() == 1) activeFields.add("morning");
-        }
-        return activeFields;
-    }
-
 
 }

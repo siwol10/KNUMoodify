@@ -75,6 +75,7 @@
                         success: function(data) {
                             // Y/N 체크
                             if (data.emotion === 'N' || data.situation === 'N') {
+                                $('#inputText').val(inputText);
                                 openSelectionModalWithEmotions(data.emotions || [], data.situations || []);
                             } else {
                                 showLoading();
