@@ -21,7 +21,7 @@ class Song(BaseModel):
     driving: int
     gathering: int
     morning: int
-    id: str
+    id: str | None = None
     url: str
 
 class Response(BaseModel):
