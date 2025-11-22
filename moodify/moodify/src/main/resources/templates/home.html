@@ -6,8 +6,6 @@
     <link rel="stylesheet" th:href="@{/css/home.css}" />
     <link rel="icon" type="image/x-icon" th:href="@{/css/images/favicon.ico}" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-
         <script>
             function validateMoodInput(raw) {
               const text = raw.trim();
@@ -59,6 +57,66 @@
             }
 
             $(document).ready(function() {
+                function sendRecommendationRequest() {
+                    const inputText = $('#moodInput').val();
+
+                    showLoading();
+
+                    $.ajax({
+                        url: '/check/recommendations',
+                        type: 'GET',
+                        data: {
+                            text: inputText,
+                            choice: userChoice  // TODO 여기 필드만 추가
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                            hideLoading();
+
+                            if (data.emotion === 'N' || data.situation === 'N') {
+                                $('#inputText').val(inputText);
+                                openSelectionModalWithEmotions(data.emotions || [], data.situations || []);
+
+                            } else {
+                                const responseObject = data.response;
+                                $('#analysisResult').val(JSON.stringify(responseObject));
+                                $('#moodForm').submit();
+                            }
+                        },
+                        error: function() {
+                            alert('error');
+                            console.error('데이터 확인 중 오류 발생');
+                        }
+                    });
+                }
+
+                let userChoice = null;  // yes/no 저장
+
+                // 모달 열기
+                function openYesNoModal() {
+                    $('#yesNoModal').addClass('show');
+                }
+
+                // 모달 닫기
+                function closeYesNoModal() {
+                    $('#yesNoModal').removeClass('show');
+                }
+
+                // 예 버튼 클릭
+                $('#yesBtn').click(function() {
+                    userChoice = 'Y'; // TODO
+                    closeYesNoModal();
+                    sendRecommendationRequest();
+                });
+
+                // 아니오 버튼 클릭
+                $('#noBtn').click(function() {
+                    userChoice = 'N'; // TODO
+                    closeYesNoModal();
+                    sendRecommendationRequest();
+                });
+
+
                 $('#btn').click(function(e) {
                     e.preventDefault();
 
@@ -70,30 +128,7 @@
                         return; // 유효성 실패 → AJAX 안 보냄
                     }
                     clearMoodError();
-                    showLoading();
-                    $.ajax({
-                        url: '/check/recommendations',
-                        type: 'GET',
-                        data: { text: inputText },
-                        dataType: 'json',
-                        success: function(data) {
-                            hideLoading();
-                            // Y/N 체크
-                            if (data.emotion === 'N' || data.situation === 'N') {
-                                $('#inputText').val(inputText);
-                                openSelectionModalWithEmotions(data.emotions || [], data.situations || []);
-                            } else {
-
-                                const responseObject = data.response;
-                                $('#analysisResult').val(JSON.stringify(responseObject));
-                                $('#moodForm').submit();
-                            }
-                        },
-                        error: function() {
-                            alert('error');
-                            console.error('데이터 확인 중 오류 발생');
-                        }
-                    });
+                    openYesNoModal();
                 });
                 $('#moodInput').keypress(function(e) {
                     if (e.key === 'Enter') {
@@ -245,6 +280,17 @@
         <div class="loading-box">
             <div class="loading-spinner"></div>
             <p class="loading-text">추천 곡을 불러오는 중이에요...</p>
+        </div>
+    </div>
+
+    <!-- 예/아니오 선택 모달 -->
+    <div id="yesNoModal" class="yesno-modal">
+        <div class="yesno-content">
+<!--            <p>현재 감정을 해소할 수 있는 음악을 들으시겠습니까?</p>-->
+            <div class="yesno-buttons">
+                <button id="yesBtn" class="yesChoice">현재 감정을 해소할 수 있는 음악 듣기</button>
+                <button id="noBtn" class="noChoice">현재 감정 그대로의 음악 듣기</button>
+            </div>
         </div>
     </div>
 

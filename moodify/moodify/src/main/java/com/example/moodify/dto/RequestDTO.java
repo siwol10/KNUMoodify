@@ -3,14 +3,17 @@ package com.example.moodify.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class RequestDTO {
     private String text;
+    private String choice;
     private List<String> emotions;
     private List<String> situations;
 

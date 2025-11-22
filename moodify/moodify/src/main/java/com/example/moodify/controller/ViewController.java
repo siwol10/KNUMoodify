@@ -30,10 +30,14 @@ public class ViewController { //화면 표시용
 
     // 사용자 입력값 상황, 분석 여부 체크
     @GetMapping("/check/recommendations")
-    public ResponseEntity<Map<String, Object>> checkRecommendations(@RequestParam String text) throws IOException {
+    public ResponseEntity<Map<String, Object>> checkRecommendations(
+            @RequestParam String text,
+            @RequestParam String choice) throws IOException {
         System.out.println("/check/recommendations");
         RequestDTO requestDTO = new RequestDTO();
         requestDTO.setText(text);
+        requestDTO.setChoice(choice);
+        System.out.println(requestDTO.toString());
         ResponseDTO response = service.getAnalysisResultAndSongs(requestDTO);
         System.out.println("response : " + response);
         boolean hasEmotion = (null != response.getEmotions()) ? true : false;
