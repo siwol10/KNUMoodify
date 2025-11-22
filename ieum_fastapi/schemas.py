@@ -5,6 +5,7 @@ class Request(BaseModel):
     text: str = Field(..., description="분류할 문장")
     emotions: List[str] | None = None
     situations:List[str] | None = None
+    choice: str | None = None
 
 class Song(BaseModel):
     artist: str

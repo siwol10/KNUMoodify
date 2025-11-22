@@ -37,12 +37,20 @@ def analyze_and_recommend(req: Request):
     emotions = [predict_one(req.text)]
     situations = analyze_situation_list(req.text)
 
+    print('*** input: ', req)
+    print('*** situations: ', situations)
+    print('*** emotions: ', emotions)
+    print('*** choice: ', req.choice)
+
     if not emotions: # 상황만 입력했을 경우(특정 감정 입력 X) -> 모든 감정을 가지고 플레이리스트 생성
         emotions = ['anger', 'sadness', 'joy', 'surprise', 'fear']
 
-    print('*** input', req)
-    print('*** emotions', emotions)
-    print('*** situations', situations)
+    if req.choice == 'Y': # 감정 해소용 매핑
+        emotion_mapping = {'anger': 'sadness', 'sadness': 'joy', 'fear': 'joy', 'surprise': 'joy', 'joy': 'joy'}
+        emotions = [emotion_mapping[emotions[0]]]
+        print('*** emotion mapping: ', emotions)
+
+    print('*** 최종 emotion: ', emotions)
 
     if 'None' in situations: #목록에 없는 상황이 입력된 경우 선택지 주기
         return Response(selection = True, emotions = emotions, situations = situations, songs = None)
@@ -54,10 +62,6 @@ def analyze_and_recommend(req: Request):
 def recommend_songs(req: Request):
     emotions = req.emotions
     situations = req.situations
-
-    print('*** input', req)
-    print('*** emotions', emotions)
-    print('*** situations', situations)
 
     songs = recommend(SPOTIFY_DF, emotions, situations)
     return Response(selection = False, emotions = emotions, situations = situations, songs = songs)
