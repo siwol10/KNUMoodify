@@ -34,6 +34,7 @@ STATE_STORE: Dict[str, Dict] = {}
 
 @app.post("/analyze-and-recommend", response_model=Response)
 def analyze_and_recommend(req: Request):
+    ALL_EMOTIONS =['anger', 'sadness', 'joy', 'surprise', 'fear']
     emotions = [predict_one(req.text)]
 
     #openAI 기반 상황 분류로 교체
@@ -56,9 +57,9 @@ def analyze_and_recommend(req: Request):
     print('*** choice: ', req.choice)
 
     if not emotions: # 상황만 입력했을 경우(특정 감정 입력 X) -> 모든 감정을 가지고 플레이리스트 생성
-        emotions = ['anger', 'sadness', 'joy', 'surprise', 'fear']
+        emotions = ALL_EMOTIONS
 
-    if req.choice == 'Y': # 감정 해소용 매핑
+    if set(emotions) != set(ALL_EMOTIONS) and req.choice == 'Y': # 감정 해소용 매핑
         emotion_mapping = {'anger': 'sadness', 'sadness': 'joy', 'fear': 'joy', 'surprise': 'joy', 'joy': 'joy'}
         emotions = [emotion_mapping[emotions[0]]]
         print('*** emotion mapping: ', emotions)
