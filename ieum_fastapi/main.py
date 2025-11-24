@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, HTMLResponse
 from recommendation import recommend, sp_oauth
 from inference import predict_one
-from situation_classifier import analyze_situation_list
+from situation_classifier_openai import classify_situation_kor
 from schemas import Request, Response, PlaylistRequest, LoginResponse
 from typing import Dict
 from uuid import uuid4
@@ -35,7 +35,20 @@ STATE_STORE: Dict[str, Dict] = {}
 @app.post("/analyze-and-recommend", response_model=Response)
 def analyze_and_recommend(req: Request):
     emotions = [predict_one(req.text)]
-    situations = analyze_situation_list(req.text)
+
+    #openAI 기반 상황 분류로 교체
+    raw_situations = classify_situation_kor(req.text)
+
+    # 3) 상황 리스트 후처리
+    #    - 상황 단서 없음: ['None']
+    #    - 확정 1개: ['situation']
+    #    - 모호한 경우(2개 이상): 상위 2개 ['situation1', 'situation2']
+    if not raw_situations:
+        situations = ['None']
+    elif len(raw_situations) == 1:
+        situations = raw_situations
+    else:
+        situations = raw_situations[:2]
 
     print('*** input: ', req)
     print('*** situations: ', situations)

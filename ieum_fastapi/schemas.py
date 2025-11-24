@@ -37,3 +37,10 @@ class PlaylistRequest(BaseModel):
 
 class LoginResponse(BaseModel):
     authorize_url: str
+
+class SituationRequest(BaseModel):
+    text: str
+
+class SituationResponse(BaseModel):
+    situations: List[str]
+    reason: str
